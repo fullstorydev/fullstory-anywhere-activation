@@ -79,10 +79,8 @@ Create a Stream that sends messages to Slack. This Stream definition consumes 1 
     "*Suspicious IP Detected*\n",
     "IP Address: ",
     ["var", "event.0.ip_address"],
-    "\n<https://app.fullstory.com/ui/ORG_ID/session/",
-    ["var", "event.0.device_id"],
-    ":",
-    ["var", "event.0.session_id"],
+    "\n<",
+    ["var", "event.0.app_url_event"],
     "|Fullstory Session>"
   ]
 }
@@ -98,4 +96,5 @@ Create a Stream that sends messages to Slack. This Stream definition consumes 1 
 ## Next Steps
 
 - Explore more message combinations using Slack's [Block Kit Builder](https://app.slack.com/block-kit-builder/T02FE3LFK#%7B%22blocks%22:%5B%5D%7D) and [Streams Advanced JSON Mapping](https://developer.fullstory.com/anywhere/activation/streams/#advanced-json-mapping).
+- Use the [Block Kit example](./block-kit-json.md) of the Suspicious Visit message.
 - Review Stream [events](https://developer.fullstory.com/anywhere/activation/streams/#event) to create new Streams or enhance single event Streams with more events to create patterns.
