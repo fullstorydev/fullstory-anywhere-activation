@@ -1,0 +1,14 @@
+.DS_Store
+*-debug.log
+*-error.log
+/.nyc_output
+/dist
+/dist-config
+/lib
+/tmp
+/yarn.lock
+/node_modules
+/coverage
+/.vscode
+/swagger
+tsconfig.tsbuildinfo

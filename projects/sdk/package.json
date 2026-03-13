@@ -1,0 +1,37 @@
+{
+  "name": "@fullstory/activation-sdk",
+  "version": "1.0.0-alpha.0",
+  "description": "Fullstory Anywhere: Activation SDK",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --build --verbose",
+    "lint": "eslint ./src",
+    "test": "npm run lint && jest --env=jsdom --collectCoverage"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.22.11",
+    "@babel/preset-env": "^7.22.14",
+    "@babel/preset-typescript": "^7.22.11",
+    "@jest/globals": "^29.6.4",
+    "@types/debug": "^4.1.12",
+    "@types/fs-extra": "^11.0.4",
+    "@types/json-bigint": "^1.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "babel-jest": "^29.6.4",
+    "eslint": "^8.50.0",
+    "jest": "^29.6.4",
+    "jest-environment-jsdom": "^30.2.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "debug": "^4.3.6",
+    "fs-extra": "^11.2.0",
+    "json-bigint": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
