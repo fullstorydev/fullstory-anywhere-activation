@@ -74,8 +74,8 @@
     "pack:tar": "oclif pack tarballs",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",
-    "prepack": "oclif manifest && oclif readme",
-    "version": "oclif readme && git add README.md"
+    "prepack": "oclif manifest && oclif readme --multi",
+    "version": "oclif readme --multi && git add README.md"
   },
   "types": "dist/index.d.ts"
 }
