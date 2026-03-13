@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "oclif",
+    "oclif-typescript",
+    "prettier"
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json"
+      }
+    }
+  },
+  "rules": {
+    // loops are used rather than promise.all to prevent rate limiting
+    "no-await-in-loop": "off",
+    // sorting oject keys will break the ordering of columns for tables
+    "perfectionist/sort-objects": "off"
+  }
+}
