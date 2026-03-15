@@ -1,7 +1,7 @@
 import { Profile } from '@fullstory/activation-sdk/index.js';
 import { Args, Flags } from '@oclif/core';
 
-import { Command, Prompt } from '../../core/index.js';
+import { Command, Fmt, Prompt } from '../../core/index.js';
 
 export default class SessionSummaryCommand extends Command {
   static args = {
@@ -12,57 +12,60 @@ export default class SessionSummaryCommand extends Command {
   static description = `Generate an AI summary of a session using a summarization profile.
 The profile specifies prompting instructions and session context configuration.
 
-For more information, see https://developer.fullstory.com/server/sessions/summarize/`;
+For more information, see https://developer.fullstory.com/server/sessions/summarize/.`;
 
   static enableJsonFlag = true;
 
   static examples = [
-    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 abc-profile-id', description: 'Generate a summary for a session.' },
-    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189', description: 'Interactively select a profile and generate a summary.' },
-    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 abc-profile-id --endTimestamp 2024-08-01T13:00:00Z', description: 'Summarize events up to a specific time.' },
-    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 abc-profile-id --output summary.json', description: 'Save the summary to a file.' },
+    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189', description: 'Interactively select a profile and summarize the session.' },
+    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 1c07280f-df08-494f-873e-6214cb6c46b', description: 'Summarize the session using a specific summary profile.' },
+    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 1c07280f-df08-494f-873e-6214cb6c46b --endTimestamp 2024-08-01T13:00:00Z', description: 'Summarize from session start time until the end timestamp' },
   ];
 
   static flags = {
     ...Command.flags,
     endTimestamp: Flags.string({ required: false, description: 'Only include events before this ISO 8601 timestamp.' }),
-    output: Flags.string({ char: 'o', required: false, description: 'Save JSON output to file.' }),
   }
 
   static summary = 'Generate a session summary.';
 
+  /**
+   * Prompt the user to choose a summary profile from a list of profiles.
+   * @param profiles Array of available summary profiles.
+   * @returns The selected `Profile` object.
+   */
+  async chooseProfile(profiles: Profile[]) {
+    const options = profiles.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+      .map((profile: Profile) => ({ name: `${profile.id}\t${profile.name || ''}`, value: profile }));
+    const selectedProfile = await Prompt.list<Profile>(options, 'Choose summary profile:');
+    return selectedProfile;
+  }
+
   async run() {
-    const { args: { sessionId, profileId: profileIdArg }, flags } = await this.parse(SessionSummaryCommand);
+    const { args: { sessionId, profileId }, flags: { endTimestamp, json } } = await this.parse(SessionSummaryCommand);
 
     const { SummaryProfile, Session } = this.Fullstory;
 
-    let profileId = profileIdArg;
+    let profile: Profile;
 
-    if (!profileId) {
+    if (profileId) {
+      profile = await SummaryProfile.get(profileId);
+    } else {
       const profiles = await SummaryProfile.list();
 
       if (profiles.length === 0) {
-        this.error('No summarization profiles found. Create one with `profile:create`.');
+        this.error(`No summary profiles found. Create one with ${Fmt.cmd(this.config.bin, 'profile:create')}.`);
       }
 
-      const options = profiles.map((profile: Profile) => ({ name: `${profile.id}\t${profile.name || ''}`, value: profile }));
-      const selectedProfile = await Prompt.list<Profile>(options, 'Select summary profile:');
-      profileId = selectedProfile.id;
+      profile = await this.chooseProfile(profiles);
     }
 
-    const { summary } = await Session.summarize(sessionId, profileId, flags.endTimestamp);
+    const summary = await Session.summary(sessionId, profile.id, endTimestamp);
 
-    if (flags.output) {
-      const { writeJsonSync } = await import('fs-extra');
-      writeJsonSync(flags.output, { summary }, { spaces: 2 });
-      this.print(`Summary saved to ${flags.output}`, 'success');
-      return { summary };
+    if (profile.llm.response_schema) {
+      this.logJson(summary.response);
+    } else {
+      return json ? summary : this.log(summary.summary);
     }
-
-    if (flags.json) {
-      return { summary };
-    }
-
-    this.log(summary);
   }
 }

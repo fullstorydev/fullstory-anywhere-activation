@@ -9,9 +9,9 @@ export default class SessionListCommand extends TableCommand {
   };
 
   static columns: TableColumns<Session> = {
-    createdTime: { name: 'Created', description: 'Create time', format: session => new Date(Number(session.createdTime)).toLocaleString() },
-    sessionId: { name: 'Session', description: 'Session ID', format: session => `${session.userId}:${session.sessionId}` },
-    fsUrl: { name: 'Session Replay', description: 'Link to session replay' },
+    createdTime: { name: 'Created', description: 'Create time', format: session => new Date(Number(session.createdTime) * 1000).toLocaleString() },
+    sessionId: { name: 'Session ID', description: 'Session ID', format: session => `${session.userId}:${session.sessionId}` },
+    fsUrl: { name: 'Session Replay URL', description: 'Link to session replay' },
   };
 
   static description = `List session replay URLs for a user, queried by email address or UID.
@@ -22,10 +22,10 @@ For more information, see https://developer.fullstory.com/server/sessions/`;
   static enableJsonFlag = true;
 
   static examples = [
-    { command: '<%= config.bin %> session user@example.com', description: 'List sessions by email.' },
-    { command: '<%= config.bin %> session my-app-uid-123', description: 'List sessions by UID.' },
-    { command: '<%= config.bin %> session user@example.com --json', description: 'List sessions as JSON.' },
-    { command: '<%= config.bin %> session user@example.com --output sessions.json', description: 'Save sessions to a file.' },
+    { command: '<%= config.bin %> session user@fullstory.com', description: 'List sessions by email.' },
+    { command: '<%= config.bin %> session 1841382665432129521:4929353557192241189', description: 'List sessions by UID.' },
+    { command: '<%= config.bin %> session user@fullstory.com --json', description: 'List sessions as JSON.' },
+    { command: '<%= config.bin %> session user@fullstory.com --output sessions.json', description: 'Save sessions to a file.' },
   ];
 
   static flags = {

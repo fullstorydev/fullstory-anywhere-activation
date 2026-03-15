@@ -15,7 +15,7 @@ export default class UserListCommand extends TableCommand {
     display_name: { name: 'Display Name', description: 'User display name' },
     email: { name: 'Email', description: 'User email address' },
     is_being_deleted: { name: 'Deleting', extended: true, description: 'Whether the user is being deleted' },
-    app_url: { name: 'App URL', extended: true, description: 'Link to user in Fullstory' },
+    app_url: { name: 'URL', description: 'Link to user in Fullstory', extended: true },
   };
 
   static description = `List users or retrieve a single user by Fullstory-assigned ID.
@@ -42,6 +42,7 @@ For more information, see https://developer.fullstory.com/server/users/list-user
     'display-name': Flags.string({ required: false, description: 'Filter by display name.' }),
     identified: Flags.boolean({ required: false, description: 'Filter to identified users only.' }),
     schema: Flags.boolean({ required: false, description: 'Include property schemas in the response.' }),
+    page: Flags.string({ required: false, description: 'Fetch the next page using a next_page_token from a previous response.' }),
     output: Flags.string({ char: 'o', required: false, description: 'Save JSON output to file.' }),
   }
 
@@ -91,6 +92,7 @@ ${user.schema ? JSON.stringify(user.schema, null, 2) : '-'}
       display_name: flags['display-name'],
       is_identified: flags.identified,
       include_schema: flags.schema,
+      page_token: flags.page,
     });
 
     if (flags.output) {
@@ -100,8 +102,8 @@ ${user.schema ? JSON.stringify(user.schema, null, 2) : '-'}
       return response.results;
     }
 
-    const summary = `${Fmt.number(response.total_records)} total records` +
-      (response.next_page_token ? ` (more available)` : '');
+    const summary = `${Fmt.number(response.total_records)} total users` +
+      (response.next_page_token ? ` (run ${Fmt.cmd(this.config.bin, `user --page ${response.next_page_token}`)} to see more)` : '');
 
     return this.table(response.results, UserListCommand.columns, summary);
   }

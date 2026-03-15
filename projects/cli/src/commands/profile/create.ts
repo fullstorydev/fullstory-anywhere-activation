@@ -3,7 +3,7 @@ import { ProfileConfiguration, SliceModeType } from '@fullstory/activation-sdk/i
 import { Args, Flags } from '@oclif/core';
 import { readJsonSync } from 'fs-extra';
 
-import { Command, Prompt } from '../../core/index.js';
+import { Command, Fmt, Prompt } from '../../core/index.js';
 
 const EVENT_TYPES = [
   'navigate', 'click', 'dead-click', 'error-click', 'rage-click',
@@ -72,13 +72,13 @@ For more information, see https://developer.fullstory.com/server/sessions/create
     const { SummaryProfile } = this.Fullstory;
 
     // Resolve profile name
-    let name = args.name;
+    let { name } = args;
     if (!name) {
       name = await Prompt.input('Profile name:');
     }
 
     if (!name) {
-      this.error('Profile name is required.');
+      this.error('A profile name is required.');
     }
 
     // Resolve configuration
@@ -93,18 +93,8 @@ For more information, see https://developer.fullstory.com/server/sessions/create
     }
 
     const profile = await SummaryProfile.create(name, config);
-    this.log(`Profile created: ${profile.id} ("${profile.name}")`);
+    this.log(`Profile ${Fmt.key(profile.id)} created.`);
     return profile;
-  }
-
-  private hasConfigFlags(flags: Record<string, unknown>): boolean {
-    return !!(
-      flags.prePrompt || flags.postPrompt || flags.temperature || flags.responseSchema ||
-      flags.sliceMode || flags.eventLimit || flags.durationLimit || flags.startTimestamp || flags.endTimestamp ||
-      flags.excludeContext || flags.includeContext ||
-      flags.excludeEventTypes || flags.includeEventTypes ||
-      flags.cache !== undefined
-    );
   }
 
   private buildConfigFromFlags(flags: Record<string, any>): ProfileConfiguration {
@@ -280,6 +270,14 @@ For more information, see https://developer.fullstory.com/server/sessions/create
     }
 
     return config;
+  }
+
+  private hasConfigFlags(flags: Record<string, unknown>): boolean {
+    return Boolean(flags.prePrompt || flags.postPrompt || flags.temperature || flags.responseSchema ||
+      flags.sliceMode || flags.eventLimit || flags.durationLimit || flags.startTimestamp || flags.endTimestamp ||
+      flags.excludeContext || flags.includeContext ||
+      flags.excludeEventTypes || flags.includeEventTypes ||
+      flags.cache !== undefined);
   }
 
   private parseContextList(value: string): typeof CONTEXT_ELEMENTS[number][] {

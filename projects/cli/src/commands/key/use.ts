@@ -1,6 +1,6 @@
-import { Args, ux } from '@oclif/core';
+import { Args } from '@oclif/core';
 
-import { Command } from '../../core/index.js';
+import { Command, Fmt } from '../../core/index.js';
 import { list } from '../../core/prompt.js';
 
 export default class KeyUseCommand extends Command {
@@ -20,7 +20,7 @@ export default class KeyUseCommand extends Command {
     { command: 'key:use DEMO', description: 'Use the API key for the given org ID with commands.' },
   ];
 
-  static summary = 'Select an API key for use.';
+  static summary = 'Select an API key for use with commands.';
 
   async run() {
     let { args: { orgId } } = await this.parse(KeyUseCommand);
@@ -30,7 +30,7 @@ export default class KeyUseCommand extends Command {
     if (!orgId) {
       const orgIds = Object.keys(keystore);
       if (orgIds.length === 0) {
-        this.log(`No API keys stored. Run ${ux.colorize('magenta', `${this.config.bin} key:add ORGID APIKEY`)} to add an API key.`);
+        this.log(`No API keys stored. Run ${Fmt.cmd(this.config.bin, 'key:add')} to add an API key.`);
         return;
       }
 
@@ -42,7 +42,7 @@ export default class KeyUseCommand extends Command {
     }
 
     if (!keystore[orgId]) {
-      this.log(`API key not found. Run ${ux.colorize('magenta', `${this.config.bin} key:add ORGID APIKEY`)} to add an API key.`);
+      this.log(`API key not found. Run ${Fmt.cmd(this.config.bin, 'key:add')} to add an API key.`);
       return;
     }
 
@@ -52,6 +52,6 @@ export default class KeyUseCommand extends Command {
 
     this.writeKeystore(keystore);
 
-    this.log(`API key "${keystore[orgId].suffix}" for org "${orgId}" will be used with commands.`);
+    this.log(`API key ${Fmt.key(keystore[orgId].suffix)} for org ${Fmt.key(orgId)} is now active.`);
   }
 }

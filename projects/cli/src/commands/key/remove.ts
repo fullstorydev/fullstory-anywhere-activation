@@ -1,6 +1,6 @@
-import { Args, ux } from '@oclif/core';
+import { Args } from '@oclif/core';
 
-import { Command } from '../../core/index.js';
+import { Command, Fmt } from '../../core/index.js';
 import { list } from '../../core/prompt.js';
 
 export default class KeyRemoveCommand extends Command {
@@ -11,7 +11,7 @@ export default class KeyRemoveCommand extends Command {
     }),
   };
 
-  static description = 'Removes an API key from local storage. If no org ID is provided, you will be prompted to select from stored keys.';
+  static description = 'Removes an API key from local storage. If no org ID is provided, you will be prompted to select from stored keys. Removing an API key does not delete the ';
 
   static enableJsonFlag = false;
 
@@ -42,7 +42,7 @@ export default class KeyRemoveCommand extends Command {
     }
 
     if (!keystore[orgId]) {
-      this.error(`API key not found for org "${orgId}".`);
+      this.error(`API key not found for org ${Fmt.key(orgId)}.`);
     }
 
     const { suffix } = keystore[orgId];
@@ -50,6 +50,6 @@ export default class KeyRemoveCommand extends Command {
 
     this.writeKeystore(keystore);
 
-    this.log(`Removed API key "${suffix}" for org "${orgId}".`);
+    this.log(`API key ${Fmt.key(suffix)} for org ${Fmt.key(orgId)} has been removed.`);
   }
 }

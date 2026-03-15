@@ -11,7 +11,7 @@ export default class ProfileListCommand extends TableCommand {
 
   static columns: TableColumns<Profile> = {
     id: { name: 'ID' },
-    name: {},
+    name: { format: (row) => row.name || '-' },
     sliceMode: { name: 'Mode', format: (row) => Fmt.text(row.configuration.slice?.mode) },
     sliceLimit: { name: 'Limit', format: (row) => ProfileListCommand.formatLimit(row.configuration.slice) },
     contextExcludes: { name: 'Context Excludes', format: (row) => Fmt.text(row.configuration.context?.exclude) },
@@ -79,7 +79,7 @@ ${Fmt.h3('id')}\t\t${Fmt.id(id)}
 ${Fmt.h3('name')}\t\t${name}
 
 ${Fmt.h1('slice')}
-${Fmt.h3('mode')}\t\t\t${Fmt.constant(configuration.slice?.mode)}
+${Fmt.h3('mode')}\t\t${Fmt.constant(configuration.slice?.mode)}
 ${Fmt.h3('event_limit')}\t\t${Fmt.number(configuration.slice?.event_limit)}
 ${Fmt.h3('duration_limit_ms')}\t${Fmt.number(configuration.slice?.duration_limit_ms)}
 ${Fmt.h3('start_timestamp')}\t\t${Fmt.number(configuration.slice?.start_timestamp)}
@@ -91,8 +91,8 @@ ${Fmt.h3('exclude')}\t\t${Fmt.constant(configuration.context?.exclude)}
 ${Fmt.h3('include')}\t\t${Fmt.constant(configuration.context?.include)}
 
 ${Fmt.h1('llm')}
-${Fmt.h3('pre-prompt')}\t${llm.pre_prompt || '[System Default]'}
-${Fmt.h3('post-prompt')}\t${llm.post_prompt || '[System Default]'}
+${Fmt.h3('pre-prompt')}\n${llm.pre_prompt?.replaceAll('\\n', '\n').replaceAll('\\"', '"')}
+${Fmt.h3('post-prompt')}\n${llm.post_prompt?.replaceAll('\\n', '\n').replaceAll('\\"', '"')}
 ${Fmt.h3('response schema')}\n${llm.response_schema ? JSON.stringify(llm.response_schema, null, 2) : ''}
   
 ${Fmt.h1('events')}

@@ -1,16 +1,20 @@
-import { Key, TableColumns, TableCommand } from '../../core/index.js';
+import { Fmt, Key, TableColumns, TableCommand } from '../../core/index.js';
 
 export default class KeyListCommand extends TableCommand {
   static columns: TableColumns<Key> = {
-    suffix: { name: 'Suffix', description: 'API key suffix' },
     orgId: { name: 'Org ID', description: 'Org ID' },
+    selected: {
+      name: 'Active', description: 'Indicates if a key is selected for use',
+      format: (key: Key) => key.selected ? Fmt.infoBox('active') : '-'
+    },
     domain: { name: 'Domain', description: 'Fullstory API domain' },
-    selected: { name: 'Selected', description: 'Indicates if a key is selected for use' },
+    suffix: { name: 'Suffix', description: 'API key suffix' },
   };
 
-  static description = 'List locally stored API keys and their corresponding org IDs.';
+  static description = 'List locally stored API keys and their corresponding details.';
 
-  static enableJsonFlag = true;
+  // JSON output disabled for this command since the API key contains sensitive information
+  static enableJsonFlag = false;
 
   static examples = [
     { command: '<%= config.bin %> key', description: 'List locally stored API keys.' },
@@ -22,10 +26,11 @@ export default class KeyListCommand extends TableCommand {
     const keystore = this.readKeystore();
 
     if (Object.keys(keystore).length === 0) {
-      this.log(`Run ${this.config.bin} key:add to add your first API key.`);
+      this.log(`Run ${Fmt.cmd(this.config.bin, 'key:add')} to add your first API key.`);
       return;
     }
 
-    return this.table(Object.values(keystore), KeyListCommand.columns);
+    return this.table(Object.values(keystore).sort((a, b) => a.orgId.localeCompare(b.orgId)),
+      KeyListCommand.columns);
   }
 }

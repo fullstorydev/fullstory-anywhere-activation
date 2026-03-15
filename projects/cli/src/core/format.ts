@@ -10,8 +10,8 @@ export function box(text: string | string[], color: StandardChalk = 'bgBlue', up
     ux.colorize(color, ux.colorize('bold', uppercase ? text.toUpperCase() : text));
 }
 
-export function cmd(text: string) {
-  return ux.colorize('cyan', text);
+export function cmd(bin: string, command: string) {
+  return ux.colorize('cyan', `${bin} ${command}`);
 }
 
 export function constant(text?: string | string[], separator = ' ') {
@@ -53,7 +53,7 @@ export function h3(text: string) {
   return text.toUpperCase();
 }
 
-export function infoBox(text: string | string[], color: StandardChalk = 'bgBlue',) {
+export function infoBox(text: string | string[], color: StandardChalk = 'bgBlueBright',) {
   return box(text, color);
 }
 
@@ -64,6 +64,11 @@ export function id(text: string) {
 export function join(text?: string[], separator = ',', prefix = '', suffix = '') {
   return text ? text.sort().map(token => `${prefix}${token}${suffix}`).join(separator) : '';
 }
+
+export function key(keyword: string) {
+  return ux.colorize('cyan', keyword);
+}
+
 
 export function number(text?: number | string, color: StandardChalk = 'blueBright',) {
   return text === undefined ? '' : ux.colorize(color, `${text}`);
