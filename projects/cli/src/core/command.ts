@@ -39,7 +39,7 @@ export abstract class Command extends OclifCommand {
     ensureDirSync(this.config.dataDir);
     const key = Object.values(this.readKeystore()).find(k => k.selected);
     if (key) {
-      this.Fullstory = new Fullstory(key.apiKey, key.orgId, key.domain);
+      this.Fullstory = new Fullstory(key.apiKey, key.orgId, key.domain, 'activation-cli');
     }
   }
 
@@ -105,6 +105,7 @@ export abstract class Command extends OclifCommand {
   /**
    * Removes a previously started indeterminate spinner.
    * @param message Optional text that replaces `start` message
+   * @returns void
    */
   stop(message?: string) {
     ux.action.stop(message ? `${message.charAt(0).toUpperCase() + message.slice(1)}` : undefined);
