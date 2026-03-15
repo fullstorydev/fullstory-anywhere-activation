@@ -1,0 +1,7 @@
+{
+  "name": "Basic Support Summary",
+  "llm": {
+    "pre_prompt": "You are a support agent assistant. Analyze the following session data to understand the user's issue.",
+    "post_prompt": "Based on the session, identify the primary user goal, any errors encountered, and the steps leading to the final critical issue. List any help documentation pages visited."
+  }
+}

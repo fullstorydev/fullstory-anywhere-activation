@@ -1,0 +1,7 @@
+{
+  "name": "Basic Sales Summary",
+  "llm": {
+    "pre_prompt": "Identify signals of buying intent or strong product interest in this user session.",
+    "post_prompt": "Summarize which specific product features or pricing pages the user engaged with, and note any expressions of need or comparison with alternatives if evident from their navigation or typed inputs. Output as a brief paragraph."
+  }
+}

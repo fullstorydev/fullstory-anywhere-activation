@@ -1,0 +1,47 @@
+{
+  "name": "Structured Support Summary",
+  "llm": {
+    "pre_prompt": "You are a support agent assistant. Analyze the following session data to understand the user's issue.",
+    "post_prompt": "Based on the session, identify the primary user goal, any errors encountered, and the steps leading to the final critical issue. List any help documentation pages visited.",
+    "response_schema": {
+      "type": "OBJECT",
+      "properties": {
+        "primary_goal": {
+          "type": "STRING",
+          "description": "A summary of the user's main objective during the session."
+        },
+        "issues_encountered": {
+          "type": "ARRAY",
+          "description": "A list of problems or errors the user faced.",
+          "items": {
+            "type": "STRING",
+            "description": "A description of a single issue."
+          }
+        },
+        "final_action": {
+          "type": "STRING",
+          "description": "The last significant action the user took before the session ended."
+        },
+        "reason_for_termination_suggestion": {
+          "type": "STRING",
+          "description": "A suggested reason for why the user ended their session."
+        },
+        "help_pages_visited": {
+          "type": "ARRAY",
+          "description": "A list of URLs for help or documentation pages the user visited.",
+          "items": {
+            "type": "STRING",
+            "description": "The URL of a help page."
+          }
+        }
+      },
+      "required": [
+        "primary_goal",
+        "issues_encountered",
+        "final_action",
+        "reason_for_termination_suggestion",
+        "help_pages_visited"
+      ]
+    }
+  }
+}
