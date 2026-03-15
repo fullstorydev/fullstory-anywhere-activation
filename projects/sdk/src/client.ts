@@ -1,3 +1,5 @@
+import { resolveDomain } from "./utils.js";
+
 /** A key-value map of query string parameters accepted by {@link FullstoryClient.toQuery}. */
 export type QueryParams = { [key: string]: boolean | number | string };
 
@@ -21,17 +23,20 @@ export default class FullstoryClient {
    * @param apiKey Fullstory API key used for authentication (sent as a Basic auth header).
    * @param orgId Fullstory organization identifier.
    * @param domain Optional API hostname override for data-residency or internal use (defaults to `api.fullstory.com`).
+   * @param integrationSource Optional identifier for the integration source (defaults to an empty string).
    */
-  constructor(private readonly apiKey: string, readonly orgId: string, domain?: string) {
+  constructor(private readonly apiKey: string, readonly orgId: string, domain?: string, private readonly integrationSource = '') {
     // all API requests use the api.fullstory.com domain (except internal use orgs)
     // https://developer.fullstory.com/server/getting-started/#data-residency
-    this.domain = domain || 'api.fullstory.com';
+    this.domain = domain || resolveDomain(apiKey);
   }
 
   private get headers() {
     return {
       Accept: 'application/json',
       Authorization: `Basic ${this.apiKey}`,
+      // replace with your integration's identifier for better observability in Fullstory logs or remove entirely
+      'integration-source': this.integrationSource,
     };
   }
 
