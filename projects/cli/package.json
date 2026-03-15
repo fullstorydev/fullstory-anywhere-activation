@@ -64,7 +64,29 @@
       "identifier": "com.fullstory.anywhere.cli"
     },
     "topicSeparator": ":",
-    "topics": {}
+    "topics": {
+      "annotation": {
+        "description": "Run annotation --help to list topics."
+      },
+      "event": {
+        "description": "Run event --help to list topics."
+      },
+      "export": {
+        "description": "Run export --help to list topics."
+      },
+      "key": {
+        "description": "Run key --help to list topics."
+      },
+      "profile": {
+        "description": "Run profile --help to list topics."
+      },
+      "session": {
+        "description": "Run session --help to list topics."
+      },
+      "user": {
+        "description": "Run user --help to list topics."
+      }
+    }
   },
   "scripts": {
     "build": "tsc -b && shx rm -rf dist && node bin/bundle.js cp -r packages dist",
