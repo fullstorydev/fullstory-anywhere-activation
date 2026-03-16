@@ -1,11 +1,12 @@
 `fs profile`
 ============
 
-List or get summarization profiles.
+Run profile --help to list topics.
 
 * [`fs profile [ID]`](#fs-profile-id)
 * [`fs profile:create [NAME]`](#fs-profilecreate-name)
 * [`fs profile:delete ID`](#fs-profiledelete-id)
+* [`fs profile:format`](#fs-profileformat)
 * [`fs profile:update ID`](#fs-profileupdate-id)
 
 ## `fs profile [ID]`
@@ -144,7 +145,7 @@ EXAMPLES
 
 ## `fs profile:delete ID`
 
-Delete a summarization profile.
+Delete a summary profile.
 
 ```
 USAGE
@@ -154,17 +155,50 @@ ARGUMENTS
   ID  The profile ID to delete.
 
 DESCRIPTION
-  Delete a summarization profile.
+  Delete a summary profile.
 
-  Delete a summarization profile.
-  This action is irreversible. You will be prompted to confirm.
+  Delete a summary profile.
+  This action is irreversible. A backup of the profile will be saved to a tmp file before deletion.
 
   For more information, see https://developer.fullstory.com/server/sessions/delete/
 
 EXAMPLES
-  Delete a profile (with confirmation).
+  Delete a profile with the given ID.
 
-    $ fs profile:delete abc-123
+    $ fs profile:delete 1c07280f-df08-494f-873e-6214cb6c46b
+```
+
+## `fs profile:format`
+
+Format a multi-line prompt into a single-line JSON string value.
+
+```
+USAGE
+  $ fs profile:format [-f <value>]
+
+FLAGS
+  -f, --file=<value>  Path to a text file containing the prompt.
+
+DESCRIPTION
+  Format a multi-line prompt into a single-line JSON string value.
+
+  Format multi-line prompt text into a single-line JSON string value for use with pre_prompt and post_prompt properties.
+
+  Reads text from a file (--file) or stdin. Outputs a JSON-encoded single-line string that can be pasted directly as a
+  JSON string value.
+
+EXAMPLES
+  Format text from the clipboard (macOS).
+
+    pbpaste | fs profile:format
+
+  Format text piped from a file.
+
+    cat prompt.txt | fs profile:format
+
+  Format text from a file path.
+
+    $ fs profile:format --file prompt.txt
 ```
 
 ## `fs profile:update ID`

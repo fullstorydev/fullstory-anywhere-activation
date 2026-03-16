@@ -1,7 +1,7 @@
 `fs key`
 ========
 
-List API keys.
+Run key --help to list topics.
 
 * [`fs key`](#fs-key)
 * [`fs key:add [ORGID] [APIKEY] [DOMAIN]`](#fs-keyadd-orgid-apikey-domain)
@@ -14,8 +14,8 @@ List API keys.
 
 ```
 USAGE
-  $ fs key [--json] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]]
-    [--output csv|json|yaml |  | ] [--sort <value>]
+  $ fs key [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
+    csv|json|yaml |  | ] [--sort <value>]
 
 TABLE FLAGS
   -x, --extended         show extra columns
@@ -28,13 +28,10 @@ TABLE FLAGS
                          <options: csv|json|yaml>
       --sort=<value>     property to sort by (prepend '-' for descending)
 
-GLOBAL FLAGS
-  --json  Format output as json.
-
 DESCRIPTION
   List API keys.
 
-  List locally stored API keys and their corresponding org IDs.
+  List locally stored API keys and their corresponding details.
 
 EXAMPLES
   List locally stored API keys.
@@ -54,18 +51,15 @@ ARGUMENTS
   [ORGID]   The org ID associated with the API key, found in the Fullstory app under Settings > Integrations > API Keys.
   [APIKEY]  The Fullstory API key to store. API keys are prefixed with a region identifier (e.g. "na1." for US, "eu1."
             for EU) and can be created in the Fullstory app under Settings > Integrations > API Keys.
-  [DOMAIN]  Fullstory API domain for your region (e.g. api.fullstory.com or api.eu1.fullstory.com). When omitted, the
-            domain is inferred from the region prefix of the API key (e.g. "na1." → api.fullstory.com, "eu1." →
-            api.eu1.fullstory.com). An error is raised when the provided domain is inconsistent with the key prefix.
+  [DOMAIN]  Fullstory API domain for your region. When omitted, the domain is inferred from the region prefix of the API
+            key. An error is raised when the provided domain is inconsistent with the key prefix.
 
 DESCRIPTION
   Stores an API key.
 
   Stores an API key on the local machine to be used with commands.
 
-  The domain is the Fullstory API host for your region:
-  - US:  api.fullstory.com (API keys starting with "na1.")
-  - EU:  api.eu1.fullstory.com (API keys starting with "eu1.")
+  The domain is the Fullstory API host for your region.
 
   When no domain is provided it is inferred automatically from the API key prefix. An error is raised if the supplied
   domain does not match the region indicated by the key.
@@ -98,6 +92,7 @@ DESCRIPTION
   Removes an API key.
 
   Removes an API key from local storage. If no org ID is provided, you will be prompted to select from stored keys.
+  Removing an API key does not delete the
 
 EXAMPLES
   Interactively select which API key to remove.
@@ -111,7 +106,7 @@ EXAMPLES
 
 ## `fs key:use [ORGID]`
 
-Select an API key for use.
+Select an API key for use with commands.
 
 ```
 USAGE
@@ -121,7 +116,7 @@ ARGUMENTS
   [ORGID]  The org ID associated with the previously added API key
 
 DESCRIPTION
-  Select an API key for use.
+  Select an API key for use with commands.
 
   Select an API key to be used with commands. If no org ID is provided, you will be prompted to select from stored keys.
 

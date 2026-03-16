@@ -1,7 +1,7 @@
 `fs export`
 ===========
 
-List segment exports.
+Run export --help to list topics.
 
 * [`fs export`](#fs-export)
 * [`fs export:create SEGMENTID`](#fs-exportcreate-segmentid)

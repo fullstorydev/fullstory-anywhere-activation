@@ -1,7 +1,7 @@
 `fs user`
 =========
 
-List or get users.
+Run user --help to list topics.
 
 * [`fs user [ID]`](#fs-user-id)
 * [`fs user:create`](#fs-usercreate)
@@ -19,7 +19,7 @@ List or get users.
 USAGE
   $ fs user [ID] [--json] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv |
     --no-truncate]] [-o <value>] [--sort <value>] [--uid <value>] [--email <value>] [--display-name <value>]
-    [--identified] [--schema]
+    [--identified] [--schema] [--page <value>]
 
 ARGUMENTS
   [ID]  Returns a specific user's details.
@@ -29,6 +29,7 @@ FLAGS
       --display-name=<value>  Filter by display name.
       --email=<value>         Filter by email address.
       --identified            Filter to identified users only.
+      --page=<value>          Fetch the next page using a next_page_token from a previous response.
       --schema                Include property schemas in the response.
       --uid=<value>           Filter by application-specific user ID.
 

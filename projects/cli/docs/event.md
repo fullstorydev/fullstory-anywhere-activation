@@ -1,7 +1,7 @@
 `fs event`
 ==========
 
-Create an event.
+Run event --help to list topics.
 
 * [`fs event:create [SESSIONID] [NAME]`](#fs-eventcreate-sessionid-name)
 * [`fs event:errors JOBID`](#fs-eventerrors-jobid)

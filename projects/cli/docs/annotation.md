@@ -1,7 +1,7 @@
 `fs annotation`
 ===============
 
-Create an annotation.
+Run annotation --help to list topics.
 
 * [`fs annotation:create [TEXT]`](#fs-annotationcreate-text)
 
