@@ -1,4 +1,4 @@
-# Generate AI Session Summaries with the Anywhere: Activation CLI
+# Summarize sessions with AI using the Anywhere: Activation CLI
 
 Use the Anywhere: Activation CLI to get started with AI-powered session summaries for support triage, sales prep, and product insight. This guide is a companion to the [AI Session Summary API](https://developer.fullstory.com/anywhere/activation/ai-session-summary-api/) documentation and walks through the same workflow using CLI commands instead of raw API calls.
 
@@ -138,5 +138,5 @@ Structured output is useful for populating support ticket fields or triggering a
 ## Next Steps
 
 - Read the [AI Session Summary API](https://developer.fullstory.com/anywhere/activation/ai-session-summary-api/) documentation for full API details.
-- Explore additional [CLI commmands](../../projects/cli/README.md) by running `fs` or with the `--help` flag for any commmand.
+- Explore additional CLI [commmands](../../projects/cli/README.md#commands) by running `fs` or with the `--help` flag for any commmand.
 - Experiment with additional profiles in the [`profiles/`](../../profiles) directory for sales, QA, and other use cases.

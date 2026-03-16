@@ -4,10 +4,10 @@ Practical, scenario-driven guides for building with [Fullstory Anywhere: Activat
 
 ## Guides
 
-| Guide                                                                                                  | Description                                                                                                      | Difficulty   | Prerequisites                                                                                         |
-| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
-| [Build a Real-time Slack Alert with Anywhere: Activation Streams](./guides/streams-slack-alert)        | Alert a Slack channel in real-time when behavioral patterns of interest occur.                                   | Beginner     | [Streams](https://developer.fullstory.com/anywhere/activation/streams/), Slack                        |
-| [Generate AI Session Summaries with the Anywhere: Activation CLI CLI](./guides/ai-session-summary-cli) | Walk through the AI Session Summary API using the CLI to create summary profiles and generate session summaries. | Intermediate | [AI Session Summary API](https://developer.fullstory.com/anywhere/activation/ai-session-summary-api/) |
+| Guide                                                                                            | Description                                                                     | Difficulty   | Prerequisites                                                                  |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------ |
+| [Build a Real-time Slack Alert with Anywhere: Activation Streams](./guides/streams-slack-alert)  | Alert a Slack channel in real-time when behavioral patterns of interest occur.  | Beginner     | [Streams](https://developer.fullstory.com/anywhere/activation/streams/), Slack |
+| [Summarize sessions with AI using the Anywhere: Activation CLI](./guides/ai-session-summary-cli) | Explore the Session Summary API using the CLI to generate AI session summaries. | Intermediate | [Anywhere: Activation CLI](./projects/cli/README.md)                           |
 
 ## Common Prerequisites
 
