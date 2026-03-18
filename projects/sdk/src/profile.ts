@@ -199,11 +199,10 @@ export default class SummaryProfileSdk extends Client {
       const query: string = paginationToken
         ? `limit=100&pagination_token=${encodeURIComponent(paginationToken)}`
         : 'limit=100';
-
-      const response = await super.GET<{ profiles: Profile[], pagination_token?: string }>(`/v2/visit_profile?${query}`);
+      const response = await super.GET<{ profiles: Profile[], next_pagination_token?: string }>(`/v2/visit_profile?${query}`);
 
       profiles = profiles.concat(response.profiles);
-      paginationToken = response.pagination_token;
+      paginationToken = response.next_pagination_token;
     } while (paginationToken);
 
     return profiles.sort((a, b) => (a.name || '').localeCompare(b.name || ''));

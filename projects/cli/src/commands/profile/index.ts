@@ -116,7 +116,11 @@ ${Fmt.h3('include only')}\t${Fmt.join(configuration.events?.include_types, ' ')}
       return this.print(this.printDetails(profile));
     }
 
-    const profiles = await SummaryProfile.list();
+    let profiles = await SummaryProfile.list();
+
+    // NOTE added as a defensive guard for profiles created in the alpha release of Summary Profile API
+    profiles = profiles.filter(profile => profile && profile.id);
+
     return this.table(profiles, ProfileListCommand.columns);
   }
 }
