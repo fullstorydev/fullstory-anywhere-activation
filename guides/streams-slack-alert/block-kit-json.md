@@ -1,6 +1,10 @@
 # Slack Block Kit
 
-Creating more feature-rich messages is possible with Slack [Block Kit](https://docs.slack.dev/block-kit/). To do so requires some technical adjustment.
+Creating more feature-rich messages is possible with Slack [Block Kit](https://docs.slack.dev/block-kit/). Use the final [JSON Mapping](#final-json-mapping) found at the end or follow the steps to create your own Block Kit message.
+
+<img src="./slack-block-kit.png" width="600" />
+
+To build the above, perform the following.
 
 1. Start with a [template](https://app.slack.com/block-kit-builder/T02FE3LFK#%7B%22blocks%22:%5B%7B%22type%22:%22header%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22%5B'var',%20'stream.name'%5D%22%7D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22section%22,%22fields%22:%5B%7B%22type%22:%22mrkdwn%22,%22text%22:%22*IP%20Address*%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22%5B'var',%20'event.0.ip_address'%5D%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Country*%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22%5B'var',%20'event.0.country'%5D%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Region*%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22%5B'var',%20'event.0.region'%5D%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22*City*%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22%5B'var',%20'event.0.city'%5D%22%7D%5D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22section%22,%22fields%22:%5B%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Page%20Name*%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22%5B'var',%20'event.0.page_name'%5D%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22*Page%20URL*%22%7D,%7B%22type%22:%22mrkdwn%22,%22text%22:%22%5B'var',%20'event.0.url'%5D%22%7D%5D%7D,%7B%22type%22:%22divider%22%7D,%7B%22type%22:%22section%22,%22text%22:%7B%22type%22:%22mrkdwn%22,%22text%22:%22%20%22%7D,%22accessory%22:%7B%22type%22:%22button%22,%22text%22:%7B%22type%22:%22plain_text%22,%22text%22:%22View%20Session%20Replay%22%7D,%22url%22:%22https://%5B'var',%20'app_url_event'%5D%22,%22action_id%22:%22button-fullstory-view-replay-action%22%7D%7D%5D%7D) in Slack's Block Kit Builder.
 2. Make three adjustments to convert the template into valid Advanced JSON Mapping syntax.
