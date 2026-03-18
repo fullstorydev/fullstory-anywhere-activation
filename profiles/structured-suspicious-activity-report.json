@@ -1,0 +1,143 @@
+{
+  "name": "Structured Suspicious Activity Report",
+  "llm": {
+    "pre_prompt": "You are a fraud detection system generating a structured Suspicious Activity Report (SAR) from session data. This output feeds internal review workflows, detection engineering backlogs, and product security tracking systems. Be precise, factual, and reference specific observable session events for every finding.",
+    "post_prompt": "Analyze the session and generate a complete structured SAR. Every IOC must reference a specific observable action from the session. For activity_timeline entries, include only events relevant to the investigation — do not enumerate every page view. The detection_recommendations should be specific and implementable (e.g., 'Add rate limiting to /api/login after 5 failures in 60 seconds' not 'Improve security'). If the session contains no suspicious activity, set suspicion_confirmed to false, risk_level to LOW, and return empty arrays for iocs, product_recommendations, and detection_recommendations.",
+    "temperature": 0.2,
+    "response_schema": {
+      "type": "OBJECT",
+      "properties": {
+        "report_summary": {
+          "type": "STRING",
+          "description": "One to two sentence description of the suspicious activity and the session/account involved."
+        },
+        "suspicion_confirmed": {
+          "type": "BOOLEAN",
+          "description": "Whether the session contains confirmed suspicious or malicious activity."
+        },
+        "risk_level": {
+          "type": "STRING",
+          "description": "Overall risk level of the activity observed.",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+          "format": "enum"
+        },
+        "activity_timeline": {
+          "type": "ARRAY",
+          "description": "Chronological list of key session events relevant to the investigation.",
+          "items": {
+            "type": "OBJECT",
+            "properties": {
+              "action": {
+                "type": "STRING",
+                "description": "Description of what the user did."
+              },
+              "page_url": {
+                "type": "STRING",
+                "description": "The URL where this action occurred.",
+                "nullable": true
+              },
+              "is_suspicious": {
+                "type": "BOOLEAN",
+                "description": "Whether this specific action is flagged as suspicious."
+              }
+            },
+            "required": ["action", "is_suspicious"]
+          }
+        },
+        "iocs": {
+          "type": "ARRAY",
+          "description": "Indicators of compromise observed in the session.",
+          "items": {
+            "type": "OBJECT",
+            "properties": {
+              "observation": {
+                "type": "STRING",
+                "description": "What was observed in the session."
+              },
+              "location": {
+                "type": "STRING",
+                "description": "Page URL or action where the IOC was observed."
+              },
+              "fraud_pattern": {
+                "type": "STRING",
+                "description": "The known fraud pattern this matches (e.g., credential stuffing, account takeover, payment testing)."
+              },
+              "confidence": {
+                "type": "STRING",
+                "description": "Confidence that this is a true positive.",
+                "enum": ["high", "medium", "low"],
+                "format": "enum"
+              }
+            },
+            "required": ["observation", "location", "fraud_pattern", "confidence"]
+          }
+        },
+        "impact": {
+          "type": "OBJECT",
+          "description": "Assessment of what was affected and whether the attack succeeded.",
+          "properties": {
+            "activity_succeeded": {
+              "type": "BOOLEAN",
+              "description": "Whether the suspicious activity achieved its apparent goal."
+            },
+            "affected_data": {
+              "type": "STRING",
+              "description": "What data or systems were potentially compromised or accessed."
+            },
+            "scope": {
+              "type": "STRING",
+              "description": "Whether this affects a single account, multiple accounts, or is a system-wide concern.",
+              "enum": ["single_account", "multiple_accounts", "system_wide"],
+              "format": "enum"
+            }
+          },
+          "required": ["activity_succeeded", "affected_data", "scope"]
+        },
+        "evidence_to_preserve": {
+          "type": "ARRAY",
+          "description": "Specific session data points to retain for further investigation.",
+          "items": {
+            "type": "STRING",
+            "description": "A data point to preserve (e.g., session ID, user ID, URL, error message)."
+          }
+        },
+        "immediate_actions": {
+          "type": "ARRAY",
+          "description": "Actions the fraud team should take now.",
+          "items": {
+            "type": "STRING",
+            "description": "A specific immediate action."
+          }
+        },
+        "product_recommendations": {
+          "type": "ARRAY",
+          "description": "Application or product changes that would prevent or mitigate this pattern.",
+          "items": {
+            "type": "STRING",
+            "description": "A specific product change recommendation."
+          }
+        },
+        "detection_recommendations": {
+          "type": "ARRAY",
+          "description": "New detection rules, signals, or thresholds to add to fraud detection systems.",
+          "items": {
+            "type": "STRING",
+            "description": "A specific detection engineering recommendation."
+          }
+        }
+      },
+      "required": [
+        "report_summary",
+        "suspicion_confirmed",
+        "risk_level",
+        "activity_timeline",
+        "iocs",
+        "impact",
+        "evidence_to_preserve",
+        "immediate_actions",
+        "product_recommendations",
+        "detection_recommendations"
+      ]
+    }
+  }
+}

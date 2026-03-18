@@ -1,0 +1,108 @@
+{
+  "name": "Structured Fraud Risk Classification",
+  "llm": {
+    "pre_prompt": "You are a fraud detection system analyzing a user session. Classify the session risk and itemize every indicator of compromise (IOC) you observe. Be precise and factual — report only what is directly observable in the session data. Each IOC must reference a specific action, page, or event from the session.",
+    "post_prompt": "Analyze the session and populate every field in the response schema. For risk_level, use CRITICAL only for sessions with multiple high-confidence fraud indicators or active exploitation. Use HIGH for clear suspicious patterns, MEDIUM for ambiguous signals that warrant review, and LOW for sessions with no meaningful fraud indicators. Every IOC must map to a specific observable behavior in the session. If no IOCs are found, return an empty array for indicators_of_compromise and set risk_level to LOW.",
+    "temperature": 0.2,
+    "response_schema": {
+      "type": "OBJECT",
+      "properties": {
+        "risk_level": {
+          "type": "STRING",
+          "description": "Overall fraud risk classification for this session.",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+          "format": "enum"
+        },
+        "risk_score": {
+          "type": "INTEGER",
+          "description": "Numeric risk score from 0 (no risk) to 100 (confirmed malicious activity)."
+        },
+        "risk_summary": {
+          "type": "STRING",
+          "description": "One to two sentence summary of why this risk level was assigned."
+        },
+        "session_intent": {
+          "type": "STRING",
+          "description": "Best assessment of the user's primary intent during the session (e.g., legitimate purchase, account takeover attempt, reconnaissance, payment testing)."
+        },
+        "indicators_of_compromise": {
+          "type": "ARRAY",
+          "description": "List of specific suspicious behaviors observed in the session.",
+          "items": {
+            "type": "OBJECT",
+            "properties": {
+              "ioc_type": {
+                "type": "STRING",
+                "description": "Category of the indicator.",
+                "enum": [
+                  "credential_stuffing",
+                  "account_enumeration",
+                  "account_takeover",
+                  "payment_testing",
+                  "data_harvesting",
+                  "price_manipulation",
+                  "coupon_abuse",
+                  "shipping_manipulation",
+                  "bot_behavior",
+                  "session_anomaly",
+                  "velocity_abuse",
+                  "other"
+                ],
+                "format": "enum"
+              },
+              "confidence": {
+                "type": "STRING",
+                "description": "How confident you are that this is a true indicator.",
+                "enum": ["high", "medium", "low"],
+                "format": "enum"
+              },
+              "description": {
+                "type": "STRING",
+                "description": "What was observed, including the specific page URL or action."
+              },
+              "page_url": {
+                "type": "STRING",
+                "description": "The URL where this behavior was observed.",
+                "nullable": true
+              }
+            },
+            "required": ["ioc_type", "confidence", "description"]
+          }
+        },
+        "mitigating_factors": {
+          "type": "ARRAY",
+          "description": "Behaviors that suggest the session may be legitimate.",
+          "items": {
+            "type": "STRING",
+            "description": "A specific observation that reduces the risk assessment."
+          }
+        },
+        "recommended_actions": {
+          "type": "ARRAY",
+          "description": "Concrete next steps for the fraud team.",
+          "items": {
+            "type": "STRING",
+            "description": "A single recommended action."
+          }
+        },
+        "affected_accounts": {
+          "type": "ARRAY",
+          "description": "User IDs, email addresses, or account identifiers observed in the session that may be affected.",
+          "items": {
+            "type": "STRING",
+            "description": "An account identifier observed in the session."
+          }
+        }
+      },
+      "required": [
+        "risk_level",
+        "risk_score",
+        "risk_summary",
+        "session_intent",
+        "indicators_of_compromise",
+        "mitigating_factors",
+        "recommended_actions"
+      ]
+    }
+  }
+}
