@@ -54,8 +54,23 @@ Before creating the Stream, create a [Defined Event](https://help.fullstory.com/
 1. Click **Select an event...** and select **Visited URL**
 2. Click **is** and select **any** to allow any URL to be matched.
 3. Click the Refine Event button immediately to the right of **any** and search for **IP address**.
-4. Add previously identified IP addresses (e.g., `203.0.113.42`, `198.51.100.7`) using the **or** button to add multiple. If you have a long list, use the kebab icon to **Bulk edit** and add up to 500.
+4. Add previously identified IP address (e.g., `203.0.113.42`). Use the **or** button to add multiple. If you have a long list, use the kebab icon to **Bulk edit** and add up to 500.
 5. **Name** the event (e.g. `Suspicious Visit`) and click **Save**.
+
+#### Keyword Monitoring
+
+1. Click **Select an event...** and select **Changed**
+2. Click **Element** and select **text**.
+3. Add your keyword in the **Type something** input box. Use the **or** button to add multiple. If you have a long list, use the kebab icon to **Bulk edit** and add up to 500.
+4. **Name** the event (e.g. `Keyword Entered`) and click **Save**.
+
+#### VIP Response
+
+1. Click **Select an event...** and select **Visited URL**
+2. Click **is** and select **any** to allow any URL to be matched.
+3. Click the Refine Event button immediately to the right of **any** and scroll to **User Properties**.
+4. Add the user's email address (or similar property). Use the **or** button to add multiple. If you have a long list, use the kebab icon to **Bulk edit** and add up to 500. Depending on your configuration, you can also scroll to find **Customer User Properties** that may be integrated with Fullstory.
+5. **Name** the event (e.g. `VIP Visit`) and click **Save**.
 
 ### Create the Stream
 
@@ -86,6 +101,40 @@ Create a Stream that sends messages to Slack. This Stream definition consumes 1 
 }
 ```
 
+#### Keyword Monitoring
+
+```json
+{
+  "text": [
+    "concat",
+    "*Keyword Entered*\n",
+    "Keyword(s): ",
+    ["var", "event.0.target_text"],
+    "\n<",
+    ["var", "event.0.app_url_event"],
+    "|Fullstory Session>"
+  ]
+}
+```
+
+#### VIP Visit
+
+```json
+{
+  "text": [
+    "concat",
+    "*Keyword Entered*\n",
+    "Keyword(s): ",
+    ["var", "event.0.user_email"],
+    "\n<",
+    ["var", "event.0.app_url_event"],
+    "|Fullstory Session>"
+  ]
+}
+```
+
+If you're using a Custom User Property, replace `user_email` with the property itself (e.g. `loyalty_tier`).
+
 ## Testing
 
 1. Visit your website where Fullstory is deployed. Use a browser in incognito mode to create new session.
@@ -95,6 +144,6 @@ Create a Stream that sends messages to Slack. This Stream definition consumes 1 
 
 ## Next Steps
 
-- Explore more message combinations using Slack's [Block Kit Builder](https://app.slack.com/block-kit-builder/T02FE3LFK#%7B%22blocks%22:%5B%5D%7D) and [Streams Advanced JSON Mapping](https://developer.fullstory.com/anywhere/activation/streams/#advanced-json-mapping).
 - Use the [Block Kit example](./block-kit-json.md) of the Suspicious Visit message.
+- Explore more message combinations using Slack's [Block Kit Builder](https://app.slack.com/block-kit-builder/T02FE3LFK#%7B%22blocks%22:%5B%5D%7D) and [Streams Advanced JSON Mapping](https://developer.fullstory.com/anywhere/activation/streams/#advanced-json-mapping).
 - Review Stream [events](https://developer.fullstory.com/anywhere/activation/streams/#event) to create new Streams or enhance single event Streams with more events to create patterns.
