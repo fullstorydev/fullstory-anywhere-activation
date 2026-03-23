@@ -1,5 +1,6 @@
-import { Profile } from '@fullstory/activation-sdk/index.js';
+import { Profile, ProfileConfiguration } from '@fullstory/activation-sdk/index.js';
 import { Args, Flags } from '@oclif/core';
+import { readFileSync } from 'node:fs';
 
 import { Command, Fmt, Prompt } from '../../core/index.js';
 
@@ -25,6 +26,7 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
   static flags = {
     ...Command.flags,
     endTimestamp: Flags.string({ required: false, description: 'Only include events before this ISO 8601 timestamp.' }),
+    file: Flags.string({ char: 'f', description: 'Path to a JSON file containing the ProfileConfiguration.', required: false }),
   }
 
   static summary = 'Generate a session summary.';
@@ -42,9 +44,27 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
   }
 
   async run() {
-    const { args: { sessionId, profileId }, flags: { endTimestamp, json } } = await this.parse(SessionSummaryCommand);
+    const { args: { sessionId, profileId }, flags: { endTimestamp, file, json } } = await this.parse(SessionSummaryCommand);
 
     const { SummaryProfile, Session } = this.Fullstory;
+
+    if (file) {
+      const configuration: ProfileConfiguration = JSON.parse(readFileSync(file, 'utf8'));
+
+      if (endTimestamp) {
+        configuration.slice = { ...configuration.slice, 'end_timestamp': endTimestamp };
+      }
+
+      const summary = await Session.summaryWithOptions(sessionId, configuration, profileId);
+
+      if (summary.response_schema) {
+        this.logJson(summary.response);
+      } else {
+        return json ? summary : this.log(summary.summary);
+      }
+
+      return;
+    }
 
     let profile: Profile;
 

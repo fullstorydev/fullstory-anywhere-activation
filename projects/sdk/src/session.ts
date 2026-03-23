@@ -289,4 +289,12 @@ export default class SessionSdk extends Client {
     if (endTimestamp) params.set('end_timestamp', endTimestamp);
     return this.GET<Summary>(`/v2/sessions/${encodeURIComponent(id)}/summary?${params}`);
   }
+
+  async summaryWithOptions(sessionId: string, configuration: ProfileConfiguration, profileId?: string): Promise<Summary> {
+    const id = this.parseId(sessionId);
+    return this.POST<ProfileConfiguration & { profileId?: string }, Summary>(`/v2/sessions/${encodeURIComponent(id)}/summary`, {
+      profileId,
+      ...configuration,
+    });
+  }
 }
