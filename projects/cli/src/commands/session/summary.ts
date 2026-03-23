@@ -50,6 +50,8 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
 
     if (file) {
       const configuration: ProfileConfiguration = JSON.parse(readFileSync(file, 'utf8'));
+      delete (configuration as any).id;
+      delete (configuration as any).name;
 
       if (endTimestamp) {
         configuration.slice = { ...configuration.slice, 'end_timestamp': endTimestamp };
