@@ -1,4 +1,5 @@
-import { resolveDomain } from "./utils.js";
+import { resolveDomain } from './utils.js';
+import debug from 'debug';
 
 /** A key-value map of query string parameters accepted by {@link FullstoryClient.toQuery}. */
 export type QueryParams = { [key: string]: boolean | number | string };
@@ -31,6 +32,10 @@ export default class FullstoryClient {
     this.domain = domain || resolveDomain(apiKey);
   }
 
+  private debugResponse(response: Response) {
+    debug('fullstory:sdk')(`${response.url} ${response.status} ${response.statusText}`);
+  }
+
   private get headers() {
     return {
       Accept: 'application/json',
@@ -56,6 +61,7 @@ export default class FullstoryClient {
     };
 
     const response = await fetch(url, init);
+    this.debugResponse(response);
 
     if (!response.ok) {
       const json = await response.json();
@@ -85,6 +91,7 @@ export default class FullstoryClient {
     };
 
     const response = await fetch(url, init);
+    this.debugResponse(response);
 
     if (!response.ok) {
       const json = await response.json();
@@ -114,6 +121,7 @@ export default class FullstoryClient {
     };
 
     const response = await fetch(url, init);
+    this.debugResponse(response);
 
     if (!response.ok) {
       const json = await response.json();
@@ -140,6 +148,7 @@ export default class FullstoryClient {
     };
 
     const response = await fetch(url, init);
+    this.debugResponse(response);
 
     if (!response.ok) {
       const json = await response.json();
