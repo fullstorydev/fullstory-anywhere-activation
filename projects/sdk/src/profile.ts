@@ -205,7 +205,7 @@ export default class SummaryProfileSdk extends Client {
       paginationToken = response.next_pagination_token;
     } while (paginationToken);
 
-    return profiles.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    return profiles.filter(profile => profile !== undefined).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
 
   /**
