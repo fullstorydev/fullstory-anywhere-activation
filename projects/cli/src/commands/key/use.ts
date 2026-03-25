@@ -25,7 +25,7 @@ export default class KeyUseCommand extends Command {
   async run() {
     let { args: { orgId } } = await this.parse(KeyUseCommand);
 
-    const keystore = this.readKeystore();
+    const keystore = await this.readKeystore();
 
     if (!orgId) {
       const orgIds = Object.keys(keystore);
@@ -50,7 +50,7 @@ export default class KeyUseCommand extends Command {
     for (const key of Object.values(keystore)) key.selected = false;
     keystore[orgId].selected = true;
 
-    this.writeKeystore(keystore);
+    await this.writeKeystore(keystore);
 
     this.log(`API key ${Fmt.key(keystore[orgId].suffix)} for org ${Fmt.key(orgId)} is now active.`);
   }

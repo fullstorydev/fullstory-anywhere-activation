@@ -23,7 +23,7 @@ export default class KeyListCommand extends TableCommand {
   static summary = 'List API keys.';
 
   async run() {
-    const keystore = this.readKeystore();
+    const keystore = await this.readKeystore();
 
     if (Object.keys(keystore).length === 0) {
       this.log(`Run ${Fmt.cmd(this.config.bin, 'key:add')} to add your first API key.`);

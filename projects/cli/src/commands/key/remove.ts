@@ -1,6 +1,7 @@
 import { Args } from '@oclif/core';
 
 import { Command, Fmt } from '../../core/index.js';
+import * as Keychain from '../../core/keychain.js';
 import { list } from '../../core/prompt.js';
 
 export default class KeyRemoveCommand extends Command {
@@ -25,7 +26,7 @@ export default class KeyRemoveCommand extends Command {
   async run() {
     let { args: { orgId } } = await this.parse(KeyRemoveCommand);
 
-    const keystore = this.readKeystore();
+    const keystore = await this.readKeystore();
 
     if (!orgId) {
       const orgIds = Object.keys(keystore);
@@ -48,7 +49,8 @@ export default class KeyRemoveCommand extends Command {
     const { suffix } = keystore[orgId];
     delete keystore[orgId];
 
-    this.writeKeystore(keystore);
+    await Keychain.deleteApiKey(orgId);
+    await this.writeKeystore(keystore);
 
     this.log(`API key ${Fmt.key(suffix)} for org ${Fmt.key(orgId)} has been removed.`);
   }

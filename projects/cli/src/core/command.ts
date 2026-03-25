@@ -3,7 +3,10 @@ import { Command as OclifCommand, ux } from '@oclif/core';
 import { FlagProps } from '@oclif/core/lib/interfaces/parser.js';
 import { StandardChalk } from '@oclif/core/lib/interfaces/theme.js';
 import { Options, SingleBar } from 'cli-progress';
+import debug from 'debug';
 import { ensureDirSync, existsSync, readJSONSync, writeJSONSync } from 'fs-extra';
+
+import * as Keychain from './keychain.js';
 
 export interface Key {
   apiKey: string,
@@ -12,6 +15,17 @@ export interface Key {
   selected: boolean
   suffix: string;
 }
+
+/** What lives on disk — `apiKey` may be absent once migrated to the keychain. */
+interface StoredKey {
+  apiKey?: string;
+  domain: string;
+  orgId: string;
+  selected: boolean;
+  suffix: string;
+}
+
+type StoredKeyStore = { [key: string]: StoredKey };
 
 export type KeyStore = { [key: string]: Key };
 
@@ -25,11 +39,11 @@ export abstract class Command extends OclifCommand {
 
   progress?: SingleBar;
 
-  get key() {
-    const key = Object.values(this.readKeystore()).find(key => key.selected);
+  private _selectedKey?: Key;
 
-    if (key) {
-      return key;
+  get key(): Key {
+    if (this._selectedKey) {
+      return this._selectedKey;
     }
 
     this.error(`API key not found. Run ${ux.colorize('magenta', `${this.config.bin} keys:add APIKEY`)}.`);
@@ -37,8 +51,10 @@ export abstract class Command extends OclifCommand {
 
   async init() {
     ensureDirSync(this.config.dataDir);
-    const key = Object.values(this.readKeystore()).find(k => k.selected);
+    const keystore = await this.readKeystore();
+    const key = Object.values(keystore).find(k => k.selected);
     if (key) {
+      this._selectedKey = key;
       this.Fullstory = new Fullstory(key.apiKey, key.orgId, key.domain, 'activation-cli');
     }
   }
@@ -58,18 +74,71 @@ export abstract class Command extends OclifCommand {
   }
 
   /**
-   * Retrieves the API keys from local storage.
+   * Retrieves the API keys from local storage, resolving secrets from the OS keychain when available.
+   * On first read, plaintext keys are auto-migrated into the keychain.
    * @returns A `KeyStore` object containing previously stored API keys.
    */
-  readKeystore(): KeyStore {
+  async readKeystore(): Promise<KeyStore> {
     const file = `${this.config.dataDir}/${Command.KeyStoreFile}`;
 
-    if (existsSync(file)) {
-      return readJSONSync(file);
+    if (!existsSync(file)) {
+      await this.writeKeystore({});
+      return {};
     }
 
-    this.writeKeystore({});
-    return {};
+    const stored: StoredKeyStore = readJSONSync(file);
+    const keychainOk = await Keychain.isAvailable();
+    let dirty = false;
+    const keystore: KeyStore = {};
+
+    for (const [id, entry] of Object.entries(stored)) {
+      let apiKey: string | null = null;
+
+      if (keychainOk) {
+        apiKey = await Keychain.getApiKey(id);
+
+        // Auto-migrate: plaintext key exists in JSON but not yet in keychain
+        if (!apiKey && entry.apiKey) {
+          await Keychain.setApiKey(id, entry.apiKey);
+          apiKey = entry.apiKey;
+          debug('fullstory:cli')('Added API key to keystore');
+        }
+
+        // Strip plaintext copy from JSON regardless (whether just migrated or stale)
+        if (entry.apiKey) {
+          debug('fullstory:cli')('Migrating legacy API key to keystore');
+          delete entry.apiKey;
+          dirty = true;
+        }
+      } else {
+        debug('fullstory:cli')('Filed to access OS keychain; falling back to plaintext storage.');
+      }
+
+      // Fall back to JSON if keychain unavailable or empty
+      if (!apiKey && entry.apiKey) {
+        if (keychainOk) {
+          // Key should have been in the keychain but wasn't — warn
+          debug('fullstory:cli')('Could not read API key from keychain; falling back to plaintext storage.');
+        }
+
+        apiKey = entry.apiKey;
+      }
+
+      if (!apiKey) {
+        this.warn(`No API key found for org ${id}. Run key:add to re-add it.`);
+        continue;
+      }
+
+      keystore[id] = { apiKey, domain: entry.domain, orgId: entry.orgId, selected: entry.selected, suffix: entry.suffix };
+    }
+
+    // Persist stripped keys after migration
+    if (dirty) {
+      writeJSONSync(file, stored);
+      debug('fullstory:cli')('Migrated API key(s) to keystore');
+    }
+
+    return keystore;
   }
 
   /**
@@ -137,8 +206,23 @@ export abstract class Command extends OclifCommand {
     }
   }
 
-  writeKeystore(keystore: KeyStore) {
-    writeJSONSync(`${this.config.dataDir}/${Command.KeyStoreFile}`, keystore);
+  async writeKeystore(keystore: KeyStore): Promise<void> {
+    const keychainOk = await Keychain.isAvailable();
+    const toWrite: StoredKeyStore = {};
+
+    for (const [id, entry] of Object.entries(keystore)) {
+      if (keychainOk) {
+        await Keychain.setApiKey(id, entry.apiKey);
+        // Store metadata only — no apiKey on disk
+        toWrite[id] = { domain: entry.domain, orgId: entry.orgId, selected: entry.selected, suffix: entry.suffix };
+      } else {
+        // Keychain unavailable — fall back to plaintext
+        this.warn('OS keychain is not available. API key will be stored in plaintext.');
+        toWrite[id] = { ...entry };
+      }
+    }
+
+    writeJSONSync(`${this.config.dataDir}/${Command.KeyStoreFile}`, toWrite);
   }
 }
 

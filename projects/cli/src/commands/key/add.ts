@@ -54,14 +54,14 @@ export default class KeyAddCommand extends Command {
 
     const domain = domainArg || resolveDomain(apiKey);
 
-    const keystore = this.readKeystore();
+    const keystore = await this.readKeystore();
 
     // unselect all keys; the added key will be selected
     for (const key of Object.values(keystore)) key.selected = false;
 
     keystore[orgId] = this.buildKey(apiKey, orgId, domain, true);
 
-    this.writeKeystore(keystore);
+    await this.writeKeystore(keystore);
 
     this.log(`Added API key for org ${Fmt.key(orgId)}. This key is now active.`);
   }
