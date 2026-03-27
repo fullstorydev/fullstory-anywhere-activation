@@ -2,8 +2,6 @@
 
 Practical, scenario-driven guides for building with [Fullstory Anywhere: Activation](https://developer.fullstory.com/anywhere/activation/getting-started/). Guides, projects, and samples complement [developer.fullstory.com](https://developer.fullstory.com) and focus on use cases and code examples.
 
-## Guides
-
 | Guide                                                                                                                                                                                        | Difficulty   |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
 | [Build a Real-time Slack Alert with Anywhere: Activation Streams](./guides/streams-slack-alert)<br>Alert a Slack channel in real-time when behavioral patterns of interest occur.            | Beginner     |
