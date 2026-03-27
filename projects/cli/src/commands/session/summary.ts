@@ -35,6 +35,8 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
   static flags = {
     ...Command.flags,
     endTimestamp: Flags.string({ required: false, description: 'Only include events before this ISO 8601 timestamp.' }),
+    file: Flags.string({ char: 'f', required: false, description: 'Path to a JSON file containing summary profile configuration.' }),
+    model: Flags.integer({ char: 'm', hidden: true, required: false, description: 'The model to use for summarization.' }),
   }
 
   static summary = 'Generate a session summary.';
@@ -68,7 +70,7 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
 
 
   async run() {
-    const { args: { sessionId, profileId }, flags: { endTimestamp, json, file } } = await this.parse(SessionSummaryCommand);
+    const { args: { sessionId, profileId }, flags: { endTimestamp, file, json } } = await this.parse(SessionSummaryCommand);
 
     const { SummaryProfile, Session } = this.Fullstory;
 
