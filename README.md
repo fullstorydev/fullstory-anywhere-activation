@@ -1,6 +1,6 @@
-# fullstory-anywhere
+# Fullstory Anywhere: Activation
 
-Practical, scenario-driven guides for building with [Fullstory Anywhere: Activation](https://developer.fullstory.com/anywhere/activation/getting-started/). Guides presented are a companion to [developer.fullstory.com](https://developer.fullstory.com) and focus on use cases and sample code not covered elsewhere.
+Practical, scenario-driven guides for building with [Fullstory Anywhere: Activation](https://developer.fullstory.com/anywhere/activation/getting-started/). Guides, projects, and samples complement [developer.fullstory.com](https://developer.fullstory.com) and focus on use cases and code examples.
 
 ## Guides
 
