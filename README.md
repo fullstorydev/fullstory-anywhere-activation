@@ -4,11 +4,11 @@ Practical, scenario-driven guides for building with [Fullstory Anywhere: Activat
 
 ## Guides
 
-| Guide                                                                                                      | Description                                                                     | Difficulty   | Prerequisites                                                                            |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------- |
-| [Build a Real-time Slack Alert with Anywhere: Activation Streams](./guides/streams-slack-alert)            | Alert a Slack channel in real-time when behavioral patterns of interest occur.  | Beginner     | [Streams](https://developer.fullstory.com/anywhere/activation/streams/), Slack           |
-| [Build a Real-time Microsoft Teams Alert with Anywhere: Activation Streams](./guides/streams-teams-alert/) | Alert a Slack channel in real-time when behavioral patterns of interest occur.  | Beginner     | [Streams](https://developer.fullstory.com/anywhere/activation/streams/), Microsoft Teams |
-| [Summarize sessions with AI using the Anywhere: Activation CLI](./guides/ai-session-summary-cli)           | Explore the Session Summary API using the CLI to generate AI session summaries. | Intermediate | [Anywhere: Activation CLI](./projects/cli/README.md)                                     |
+| Guide                                                                                                      | Description                                                                     | Difficulty   |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------ |
+| [Build a Real-time Slack Alert with Anywhere: Activation Streams](./guides/streams-slack-alert)            | Alert a Slack channel in real-time when behavioral patterns of interest occur.  | Beginner     |
+| [Build a Real-time Microsoft Teams Alert with Anywhere: Activation Streams](./guides/streams-teams-alert/) | Alert a Slack channel in real-time when behavioral patterns of interest occur.  | Beginner     |
+| [Summarize sessions with AI using the Anywhere: Activation CLI](./guides/ai-session-summary-cli)           | Explore the Session Summary API using the CLI to generate AI session summaries. | Intermediate |
 
 ## Common Prerequisites
 
