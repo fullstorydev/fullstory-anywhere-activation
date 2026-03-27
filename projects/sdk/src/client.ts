@@ -32,8 +32,28 @@ export default class FullstoryClient {
     this.domain = domain || resolveDomain(apiKey);
   }
 
+  private debugRequest(url: string, init: RequestInit) {
+    debug('fullstory:sdk')(`${init.method} ${url} ${init.body ? `\n${JSON.stringify(init.body, null, 2)}` : ''}`);
+  }
+
   private debugResponse(response: Response) {
     debug('fullstory:sdk')(`${response.url} ${response.status} ${response.statusText}`);
+  }
+
+  /**
+   * Fetch wrapper that includes debug logging of requests and responses.
+   * @param url URL to send the request to.
+   * @param init  Request initialization parameters.
+   * @returns The fetch response.
+   */
+  private async fetch(url: string, init: RequestInit) {
+    this.debugRequest(url, init);
+
+    const response = await fetch(url, init);
+
+    this.debugResponse(response);
+
+    return response;
   }
 
   private get headers() {
@@ -60,8 +80,7 @@ export default class FullstoryClient {
       method: 'GET',
     };
 
-    const response = await fetch(url, init);
-    this.debugResponse(response);
+    const response = await this.fetch(url, init);
 
     if (!response.ok) {
       const json = await response.json();
@@ -90,8 +109,7 @@ export default class FullstoryClient {
       body: JSON.stringify(body),
     };
 
-    const response = await fetch(url, init);
-    this.debugResponse(response);
+    const response = await this.fetch(url, init);
 
     if (!response.ok) {
       const json = await response.json();
@@ -120,8 +138,7 @@ export default class FullstoryClient {
       body: JSON.stringify(body),
     };
 
-    const response = await fetch(url, init);
-    this.debugResponse(response);
+    const response = await this.fetch(url, init);
 
     if (!response.ok) {
       const json = await response.json();
@@ -147,8 +164,7 @@ export default class FullstoryClient {
       method: 'DELETE',
     };
 
-    const response = await fetch(url, init);
-    this.debugResponse(response);
+    const response = await this.fetch(url, init);
 
     if (!response.ok) {
       const json = await response.json();
