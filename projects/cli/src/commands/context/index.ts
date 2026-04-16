@@ -1,10 +1,11 @@
+/* eslint-disable camelcase */
 import { ProfileConfiguration } from '@fullstory/activation-sdk/index.js';
 import { Args, Flags } from '@oclif/core';
 import { readJsonSync } from 'fs-extra';
 
-import { Command } from '../../core/index.js';
+import { TableCommand } from '../../core/index.js';
 
-export default class SessionContextCommand extends Command {
+export default class SessionContextCommand extends TableCommand {
   static args = {
     sessionId: Args.string({ required: true, description: 'The session ID (UserId:SessionId format, or a Fullstory session URL).' }),
   };
@@ -23,30 +24,35 @@ For more information, see https://developer.fullstory.com/server/sessions/genera
   ];
 
   static flags = {
-    ...Command.flags,
+    ...TableCommand.flags,
     file: Flags.string({ char: 'f', description: 'Path to a JSON file containing the ProfileConfiguration.', required: false }),
     profileId: Flags.string({ char: 'p', description: 'ID of a saved summarization profile to use as the ProfileConfiguration.', required: false }),
   };
 
   static summary = 'Generate AI-ready session context.';
 
-  async run() {
-    const { args: { sessionId }, flags: { file, profileId } } = await this.parse(SessionContextCommand);
-
-    const { Session, SummaryProfile } = this.Fullstory;
-
-    let configuration: Omit<ProfileConfiguration, 'llm'>;
+  protected async parseConfiguration(): Promise<Omit<ProfileConfiguration, 'llm'>> {
+    const { flags } = await this.parse(this.constructor as typeof SessionContextCommand);
+    const { file, profileId } = flags;
 
     if (file) {
-      configuration = readJsonSync(file) as Omit<ProfileConfiguration, 'llm'>;
-    } else if (profileId) {
-      const { configuration: profileConfiguration } = await SummaryProfile.get(profileId);
-      configuration = profileConfiguration;
-    } else {
-      // use an empty configuration with system defaults
-      configuration = {};
+      return readJsonSync(file) as Omit<ProfileConfiguration, 'llm'>;
     }
 
+    if (profileId) {
+      const { SummaryProfile } = this.Fullstory;
+      const { configuration } = await SummaryProfile.get(profileId);
+      return configuration;
+    }
+
+    return {};
+  }
+
+  async run(): Promise<unknown> {
+    const { args: { sessionId } } = await this.parse(SessionContextCommand);
+    const configuration = await this.parseConfiguration();
+
+    const { Session } = this.Fullstory;
     const response = await Session.context(sessionId, configuration);
 
     this.logJson(response);

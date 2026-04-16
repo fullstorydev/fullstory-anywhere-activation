@@ -23,7 +23,7 @@ For more information, see https://developer.fullstory.com/server/sessions/`;
 
   static examples = [
     { command: '<%= config.bin %> session user@fullstory.com', description: 'List sessions by email.' },
-    { command: '<%= config.bin %> session 1841382665432129521:4929353557192241189', description: 'List sessions by UID.' },
+    { command: '<%= config.bin %> session fsuser26', description: 'List sessions by UID.' },
     { command: '<%= config.bin %> session user@fullstory.com --json', description: 'List sessions as JSON.' },
     { command: '<%= config.bin %> session user@fullstory.com --output sessions.json', description: 'Save sessions to a file.' },
   ];
