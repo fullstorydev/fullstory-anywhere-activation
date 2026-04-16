@@ -192,6 +192,21 @@ export interface Context {
  * Provides methods to list session replay URLs, retrieve raw session events,
  * generate AI-ready context, and produce AI summarizations of sessions.
  */
+/**
+ * Options for attaching screenshots to the Generate Context response.
+ * This is an experimental, undocumented feature.
+ */
+export interface MediaOptions {
+  /** If set to true, will enable screenshotting. Default is false. */
+  include_screenshots?: boolean;
+  /** Event types that trigger screenshots. Defaults to navigate and click if include_screenshots is true. */
+  screenshot_event_types?: ('navigate' | 'click' | 'dead-click' | 'error-click' | 'rage-click' | 'input-change' | 'network-error' | 'console-error' | 'mouse-thrash' | 'highlight' | 'copy' | 'paste' | 'element-seen')[];
+  /** If true, crop the screenshot to the bounding box of the target element instead of the full viewport. */
+  crop_screenshot_to_selector?: boolean;
+  /** If true, render the entire page beyond the viewport bounds. */
+  full_page_screenshots?: boolean;
+}
+
 export default class SessionSdk extends Client {
 
   /**
@@ -201,9 +216,12 @@ export default class SessionSdk extends Client {
    * @param configuration Configuration controlling which session data is included in the context response.
    * @returns Context response containing the session information and events as JSON.
    */
-  async context(sessionId: string, configuration: Omit<ProfileConfiguration, 'llm'>): Promise<Context> {
+  async context(sessionId: string, configuration: Omit<ProfileConfiguration, 'llm'>, media?: MediaOptions): Promise<Context> {
     const id = this.parseId(sessionId);
-    return this.POST<Omit<ProfileConfiguration, 'llm'>, Context>(`/v2/sessions/${encodeURIComponent(id)}/context`, configuration);
+    return this.POST<Omit<ProfileConfiguration, 'llm'> & { media?: MediaOptions }, Context>(
+      `/v2/sessions/${encodeURIComponent(id)}/context`,
+      { ...configuration, ...(media ? { media } : {}) },
+    );
   }
 
   /**
