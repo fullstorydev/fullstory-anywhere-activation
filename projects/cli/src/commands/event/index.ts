@@ -6,17 +6,13 @@ import { TableColumns, TableCommand } from '../../core/index.js';
 
 export default class SessionEventsCommand extends TableCommand {
   static args = {
-    sessionId: Args.string({ required: true, description: 'The session ID (UserId:SessionId format, or a Fullstory session URL).' }),
+    sessionId: Args.string({ required: true, description: 'The session ID or a Fullstory session URL.' }),
   };
 
   static columns: TableColumns<SessionEvent> = {
     eventTimestamp: {
-      name: 'Event Timestamp', description: 'Event timestamp', extended: true,
+      name: 'Event Timestamp', description: 'Event timestamp',
       format: event => event.event_time,
-    },
-    eventTime: {
-      name: 'Event Time', description: 'Formatted event time',
-      format: event => new Date(event.event_time).toLocaleString(),
     },
     sourceType: {
       name: 'Source', description: 'Source platform (web, ios, android, server)', extended: true,
@@ -40,10 +36,10 @@ For more information, see https://developer.fullstory.com/server/sessions/get-se
   static enableJsonFlag = true;
 
   static examples = [
-    { command: '<%= config.bin %> session:events 1841382665432129521:4929353557192241189', description: 'List all events for a session.' },
-    { command: '<%= config.bin %> session:events 1841382665432129521:4929353557192241189 --type change', description: 'List only "change" events.' },
-    { command: '<%= config.bin %> session:events 1841382665432129521:4929353557192241189 --type change --query $.event_properties.target.text', description: 'Extract text values from "change" events using JSONata (outputs JSON).' },
-    { command: '<%= config.bin %> session:events 1841382665432129521:4929353557192241189 --json', description: 'Output all events as JSON.' },
+    { command: '<%= config.bin %> event 1841382665432129521:4929353557192241189', description: 'List all events for a session.' },
+    { command: '<%= config.bin %> event 1841382665432129521:4929353557192241189 --type change', description: 'List only "change" events.' },
+    { command: '<%= config.bin %> event 1841382665432129521:4929353557192241189 --type change --query $.event_properties.target.text', description: 'Extract text values from "change" events using JSONata (outputs JSON).' },
+    { command: '<%= config.bin %> event 1841382665432129521:4929353557192241189 --json', description: 'Output all events as JSON.' },
   ];
 
   static flags = {

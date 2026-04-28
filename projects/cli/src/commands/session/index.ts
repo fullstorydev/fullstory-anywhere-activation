@@ -1,5 +1,7 @@
 import { Session } from '@fullstory/activation-sdk/index.js';
 import { Args, Flags } from '@oclif/core';
+import { ensureDirSync, writeJsonSync } from 'fs-extra';
+import { join } from 'node:path';
 
 import { TableColumns, TableCommand } from '../../core/index.js';
 
@@ -9,7 +11,7 @@ export default class SessionListCommand extends TableCommand {
   };
 
   static columns: TableColumns<Session> = {
-    createdTime: { name: 'Created', description: 'Create time', format: session => new Date(Number(session.createdTime) * 1000).toLocaleString() },
+    createdTime: { name: 'Created', description: 'Create time' },
     sessionId: { name: 'Session ID', description: 'Session ID', format: session => `${session.userId}:${session.sessionId}` },
     fsUrl: { name: 'Session Replay URL', description: 'Link to session replay' },
   };
@@ -23,13 +25,15 @@ For more information, see https://developer.fullstory.com/server/sessions/`;
 
   static examples = [
     { command: '<%= config.bin %> session user@fullstory.com', description: 'List sessions by email.' },
-    { command: '<%= config.bin %> session 1841382665432129521:4929353557192241189', description: 'List sessions by UID.' },
+    { command: '<%= config.bin %> session fsuser26', description: 'List sessions by UID.' },
     { command: '<%= config.bin %> session user@fullstory.com --json', description: 'List sessions as JSON.' },
     { command: '<%= config.bin %> session user@fullstory.com --output sessions.json', description: 'Save sessions to a file.' },
+    { command: '<%= config.bin %> session user@fullstory.com --download', description: 'Download all session events as JSON files.' },
   ];
 
   static flags = {
     ...TableCommand.flags,
+    download: Flags.boolean({ char: 'd', default: false, description: 'Download all session events as JSON files to the local data directory.' }),
     output: Flags.string({ char: 'o', required: false, description: 'Save JSON output to file.' }),
   }
 
@@ -41,9 +45,30 @@ For more information, see https://developer.fullstory.com/server/sessions/`;
     const { Session } = this.Fullstory;
     const sessions = await Session.list(userId);
 
+    if (flags.download) {
+      const dir = join(this.config.dataDir, 'sessions', userId);
+      ensureDirSync(dir);
+
+      this.showProgress('sessions downloaded', sessions.length);
+      for (const session of sessions) {
+        const sessionId = `${session.userId}:${session.sessionId}`;
+        const events = await Session.events(sessionId);
+
+        const filename = sessionId.replaceAll(':', '-') + '.json';
+        writeJsonSync(join(dir, filename), events, { spaces: 2 });
+
+        this.progress?.increment();
+      }
+
+      this.progress?.stop();
+
+      this.print(`Session events saved to ${dir}`, 'success');
+      return sessions;
+    }
+
     if (flags.output) {
-      const { writeJsonSync } = await import('fs-extra');
-      writeJsonSync(flags.output, sessions, { spaces: 2 });
+      const { writeJsonSync: writeJson } = await import('fs-extra');
+      writeJson(flags.output, sessions, { spaces: 2 });
       this.print(`Sessions saved to ${flags.output}`, 'success');
       return sessions;
     }

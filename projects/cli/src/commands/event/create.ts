@@ -1,4 +1,5 @@
 import { Args, Flags } from '@oclif/core';
+import { readJsonSync } from 'fs-extra';
 
 import { Command, Prompt } from '../../core/index.js';
 
@@ -17,16 +18,17 @@ For more information, see https://developer.fullstory.com/server/events/create-e
   static enableJsonFlag = true;
 
   static examples = [
-    { command: '<%= config.bin %> event "1234:5678" "Order Completed"', description: 'Create an event on a session.' },
-    { command: '<%= config.bin %> event "1234:5678" "Order Completed" --properties \'{"item":"shirt","total":12.99}\'', description: 'Create an event with custom properties.' },
-    { command: '<%= config.bin %> event "1234:5678" "Order Completed" --timestamp 2024-08-01T00:00:00Z', description: 'Create an event with a specific timestamp.' },
-    { command: '<%= config.bin %> event --file event.json', description: 'Create an event from a JSON file (calls batch import with a single event).' },
+    { command: '<%= config.bin %> event:create 1841382665432129521:4929353557192241189 "Order Completed"', description: 'Create an event on a session.' },
+    { command: '<%= config.bin %> event:create 1841382665432129521:4929353557192241189 "Order Completed" --properties ./event-props.json', description: 'Create an event with custom properties in a file.' },
+    { command: '<%= config.bin %> event:create 1841382665432129521:4929353557192241189 "Order Completed" --properties \'{"item":"shirt","total":12.99}\'', description: 'Create an event with custom properties from the terminal.' },
+    { command: '<%= config.bin %> event:create 1841382665432129521:4929353557192241189 "Order Completed" --timestamp 2024-08-01T00:00:00Z', description: 'Create an event with a specific timestamp.' },
+    { command: '<%= config.bin %> event:create --file event.json', description: 'Create an event from a JSON file (calls batch import with a single event).' },
   ];
 
   static flags = {
     ...Command.flags,
     file: Flags.string({ char: 'f', required: false, description: 'Path to a JSON file containing event data (CreateEvent schema). Uses batch import endpoint.' }),
-    properties: Flags.string({ required: false, description: 'JSON string of custom event properties.' }),
+    properties: Flags.string({ required: false, description: 'JSON string or path to a JSON file of custom event properties.' }),
     timestamp: Flags.string({ required: false, description: 'Event timestamp in ISO 8601 format. Defaults to current server time.' }),
   }
 
@@ -37,7 +39,7 @@ For more information, see https://developer.fullstory.com/server/events/create-e
     const { Event } = this.Fullstory;
 
     if (flags.file) {
-      const { readJsonSync } = await import('fs-extra');
+
       const event = readJsonSync(flags.file);
       const events = Array.isArray(event) ? event : [event];
       const response = await Event.import(events);
@@ -65,7 +67,13 @@ For more information, see https://developer.fullstory.com/server/events/create-e
     }
 
     const options: Record<string, unknown> = {};
-    if (flags.properties) options.properties = JSON.parse(flags.properties);
+
+    // users can specify properties directly in the command or referenced from a file
+    if (flags.properties) {
+      const raw = flags.properties;
+      options.properties = raw.trimStart().startsWith('{') ? JSON.parse(raw) : readJsonSync(raw);
+    }
+
     if (flags.timestamp) options.timestamp = flags.timestamp;
 
     const response = await Event.create(sid, eventName, options);

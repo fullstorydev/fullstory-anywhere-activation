@@ -49,8 +49,7 @@ export default class KeyAddCommand extends Command {
     const { args: { apiKey: apiKeyArg, domain: domainArg, orgId: orgIdArg } } = await this.parse(KeyAddCommand);
 
     const orgId = orgIdArg ?? await Prompt.input('Enter the org ID:');
-    this.print(`Open ${Fmt.key(`https://${resolveDomain(orgId, false)}/ui/${orgId}/settings/apikeys`)} in your browser. Create and copy your API key.`);
-    const apiKey = apiKeyArg ?? await Prompt.input('Paste the API key:');
+    const apiKey = apiKeyArg ?? await Prompt.input(`Open ${Fmt.key(`https://${resolveDomain(orgId, false)}/ui/${orgId}/settings/apikeys`)} in your browser. Create and paste your API key:`);
 
     const domain = domainArg || resolveDomain(apiKey);
 
