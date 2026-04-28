@@ -49,13 +49,17 @@ For more information, see https://developer.fullstory.com/server/sessions/genera
   }
 
   async run(): Promise<unknown> {
-    const { args: { sessionId } } = await this.parse(SessionContextCommand);
+    const { args: { sessionId }, flags: { json } } = await this.parse(SessionContextCommand);
     const configuration = await this.parseConfiguration();
 
     const { Session } = this.Fullstory;
     const response = await Session.context(sessionId, configuration);
 
-    this.logJson(response);
+    // if the JSON flag is not set, print the JSON specifically
+    // when the JSON flag is set, we can simply use the function return to print the JSON
+    if (!json) {
+      this.logJson(response);
+    }
 
     return response;
   }
