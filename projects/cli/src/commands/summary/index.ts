@@ -1,6 +1,8 @@
+/* eslint-disable camelcase */
 import { Profile, ProfileConfiguration, Summary } from '@fullstory/activation-sdk/index.js';
 import { Args, Flags } from '@oclif/core';
-import { readFileSync } from 'fs-extra';
+import { readFileSync, readdirSync } from 'fs-extra';
+import { join, resolve } from 'node:path';
 
 import { Command, Fmt, Prompt } from '../../core/index.js';
 
@@ -20,6 +22,11 @@ A summary profile contains prompting instructions and session context configurat
 
 When both a profile ID and a local file are used, the local file's profile properties will override the same properties in the profile referenced by the ID.
 
+Template variables can be used in pre_prompt and post_prompt fields:
+- \`{{tag:name}}\` — inlines all session JSONs from the named tag directory (downloaded via session:context --download --tag).
+- \`{{file:./path/to/file.txt}}\` — inlines the contents of the referenced file.
+- \`{{VARIABLE_NAME}}\` — prompts you interactively for a value at runtime.
+
 For more information, see https://developer.fullstory.com/server/sessions/summarize/.`;
 
   static enableJsonFlag = true;
@@ -30,6 +37,8 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
     { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 1c07280f-df08-494f-873e-6214cb6c46b --endTimestamp 2024-08-01T13:00:00Z', description: 'Summarize from session start time until the end timestamp' },
     { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 --file profile.json', description: 'Summarize the session using a local profile.' },
     { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 1c07280f-df08-494f-873e-6214cb6c46b --file profile.json', description: 'Summarize the session using a saved profile with local overrides.' },
+    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 --file profile-with-vars.json', description: 'Summarize using a profile with template variables ({{VAR}} and {{file:path}}).' },
+    { command: '<%= config.bin %> session:summary 1841382665432129521:4929353557192241189 --file profile-with-tag.json', description: 'Summarize using a profile with {{tag:experiment-1}} to include downloaded session contexts.' },
   ];
 
   static flags = {
@@ -43,8 +52,8 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
 
   /**
    * Prompt the user to choose a summary profile from a list of profiles.
-   * @param profiles Array of available summary profiles.
-   * @returns The selected `Profile` object.
+   * @param profiles - The list of profiles to choose from.
+   * @returns The selected profile.
    */
   async chooseProfile(profiles: Profile[]) {
     const options = profiles.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
@@ -54,85 +63,140 @@ For more information, see https://developer.fullstory.com/server/sessions/summar
   }
 
   /**
-   * Prints the summary response. If a response schema is present, the raw JSON response is printed. Otherwise, the summary text is printed as plaintext.
-   * @param summary The summary object containing the response and summary text.
-   * @param json Whether to print the summary as JSON.
-   * @returns The JSON itself or void if the summary text is printed.
+   * Parse and normalize the profile from flags and args.
+   * @returns An object containing the profile ID and optional configuration.
+   */
+  async parseProfile(): Promise<{ configuration?: ProfileConfiguration; profileId?: string }> {
+    const { args: { profileId }, flags: { file } } = await this.parse(SessionSummaryCommand);
+
+    let configuration: ProfileConfiguration | undefined;
+
+    if (file) {
+      configuration = JSON.parse(readFileSync(file, 'utf8'));
+
+      if (!configuration) {
+        this.error('Failed to load local profile.');
+      }
+
+      // the local profile has an id because it's likely from a list profiles response
+      if ((configuration as Profile).id) {
+        configuration = {
+          ...(configuration as Profile).configuration,
+          llm: configuration!.llm,
+        }
+      }
+
+      // the local profile has a name - often because this is used with create profile
+      if ((configuration as { name?: string }).name) {
+        delete (configuration as { name?: string }).name;
+      }
+    }
+
+    // if no profileId and no file, interactively choose
+    if (!profileId && !file) {
+      const { SummaryProfile } = this.Fullstory;
+      const profiles = await SummaryProfile.list();
+
+      if (profiles.length === 0) {
+        this.error(`No summary profiles found. Create one with ${Fmt.cmd(this.config.bin, 'profile:create')}.`);
+      }
+
+      const remoteProfile = await this.chooseProfile(profiles);
+      return { profileId: remoteProfile.id };
+    }
+
+    return { profileId, configuration };
+  }
+
+  /**
+   * Prints the summary response.
+   * @param summary - The summary object to print.
+   * @param json - Whether to output as JSON or plain text.
+   * @returns The summary output or void.
    */
   async printSummary(summary: Summary, json = false) {
     if (summary.response_schema) {
       return this.logJson(summary.response);
     }
 
-    // print the raw JSON or the summary text itself as plaintext
     return json ? summary : this.log(summary.summary);
   }
 
+  /**
+   * Resolve template variables in profile configuration.
+   * - Replace {{tag:name}} with concatenated session files from the tag directory.
+   * - Replace {{file:path}} with file contents.
+   * - Prompt interactively for remaining {{VARIABLE}} placeholders.
+   * @param config - The profile configuration containing template variables.
+   * @returns The resolved profile configuration with all template variables replaced.
+   */
+  async resolveVariables(config: ProfileConfiguration): Promise<ProfileConfiguration> {
+    const tagRegex = /{{tag:(.+?)}}/g;
+    const fileRegex = /{{file:(.+?)}}/g;
+    const varRegex = /{{(.+?)}}/g;
 
-  async run() {
-    const { args: { sessionId, profileId }, flags: { endTimestamp, file, json } } = await this.parse(SessionSummaryCommand);
+    const resolveString = async (str: string): Promise<string> => {
+      // Pass 1: tag references
+      let result = str.replaceAll(tagRegex, (_match, tagName: string) => {
+        const tagDir = join(this.config.dataDir, 'contexts', tagName.trim());
+        const files = readdirSync(tagDir).filter((f: string) => f.endsWith('.json')).sort();
+        return files.map((f: string) => `--- SESSION: ${f} ---\n${readFileSync(join(tagDir, f), 'utf8')}`).join('\n');
+      });
 
-    const { SummaryProfile, Session } = this.Fullstory;
+      // Pass 2: file references
+      result = result.replaceAll(fileRegex, (_match, filePath: string) => readFileSync(resolve(filePath.trim()), 'utf8'));
 
-    let localProfile: ProfileConfiguration | undefined;
-
-    if (file) {
-      localProfile = JSON.parse(readFileSync(file, 'utf8'));
-
-      if (!localProfile) {
-        this.error('Failed to load local profile.');
-      }
-
-      // below there's some intelligent parsing and reformatting based on file structure
-
-      // the local profile has an id because it's likely from a list profiles response
-      if ((localProfile as Profile).id) {
-        localProfile = {
-          ...(localProfile as Profile).configuration,
-          llm: localProfile.llm,
+      // Pass 3: interactive variables
+      const variables = new Map<string, string>();
+      const matches = [...result.matchAll(varRegex)];
+      for (const match of matches) {
+        const varName = match[1];
+        if (!variables.has(varName)) {
+          const value = await Prompt.input(`Enter value for ${varName}:`);
+          variables.set(varName, value);
         }
       }
 
-      // the local profile has a name - often because this is used with create profile
-      if ((localProfile as { name?: string }).name) {
-        delete (localProfile as { name?: string }).name;
+      for (const [varName, value] of variables) {
+        result = result.replaceAll(`{{${varName}}}`, value);
       }
+
+      return result;
+    };
+
+    const resolved = { ...config };
+
+    if (resolved.llm?.pre_prompt) {
+      resolved.llm = { ...resolved.llm, pre_prompt: await resolveString(resolved.llm.pre_prompt) };
     }
 
-    // use only the local profile and summarize
-    if (localProfile && !profileId) {
+    if (resolved.llm?.post_prompt) {
+      resolved.llm = { ...resolved.llm, post_prompt: await resolveString(resolved.llm.post_prompt) };
+    }
+
+    return resolved;
+  }
+
+  async run() {
+    const { args: { sessionId }, flags: { endTimestamp, json } } = await this.parse(SessionSummaryCommand);
+
+    const { Session } = this.Fullstory;
+
+    let { profileId, configuration } = await this.parseProfile();
+
+    if (configuration) {
+      configuration = await this.resolveVariables(configuration);
+
       if (endTimestamp) {
-        localProfile.slice = { ...localProfile.slice, 'end_timestamp': endTimestamp };
+        configuration.slice = { ...configuration.slice, 'end_timestamp': endTimestamp };
       }
 
-      const summary = await Session.summaryWithOverrides(sessionId, localProfile, profileId);
+      const summary = await Session.summaryWithOverrides(sessionId, configuration, profileId);
       return this.printSummary(summary, json);
     }
 
-    // override a specific profile with the local profile and summarize
-    if (localProfile && profileId) {
-      // NOTE that the profile ID can be supplied directly; there is no need to retrieve the profile
-      const summary = await Session.summaryWithOverrides(sessionId, localProfile, profileId);
-      return this.printSummary(summary, json);
-    }
-
-    // no local profile, use a remote profile and summarize
-    if (profileId) {
-      const summary = await Session.summary(sessionId, profileId, endTimestamp);
-      return this.printSummary(summary, json);
-    }
-
-    // interactively choose a profile and summarize
-    const profiles = await SummaryProfile.list();
-
-    if (profiles.length === 0) {
-      this.error(`No summary profiles found. Create one with ${Fmt.cmd(this.config.bin, 'profile:create')}.`);
-    }
-
-    // ask the user to select one
-    const remoteProfile = await this.chooseProfile(profiles);
-
-    const summary = await Session.summary(sessionId, remoteProfile.id, endTimestamp);
+    // remote profile only (either explicitly provided or interactively chosen)
+    const summary = await Session.summary(sessionId, profileId!, endTimestamp);
     return this.printSummary(summary, json);
   }
 }
