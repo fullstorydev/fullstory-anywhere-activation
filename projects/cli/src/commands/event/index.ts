@@ -54,7 +54,7 @@ For more information, see https://developer.fullstory.com/server/sessions/get-se
     query: Flags.string({ required: false, description: 'JSONata expression to transform or extract data from the events (outputs JSON).' }),
     download: Flags.boolean({ char: 'd', default: false, description: 'Download session events as JSON files to the local data directory.' }),
     tag: Flags.string({ required: false, description: 'Folder name for storing downloaded events. Used with --download.' }),
-    spaces: Flags.integer({ required: false, default: 2, description: 'Number of spaces for JSON indentation. Use 0 for compact output. Used with --download.' }),
+    compact: Flags.boolean({ default: false, description: 'Write compact JSON with no indentation. Used with --download.' }),
   };
 
   static strict = false;
@@ -62,7 +62,7 @@ For more information, see https://developer.fullstory.com/server/sessions/get-se
   static summary = 'List all captured events for a session.';
 
   async run() {
-    const { args: { sessionId }, argv, flags: { query, type, download, tag, spaces } } = await this.parse(SessionEventsCommand);
+    const { args: { sessionId }, argv, flags: { query, type, download, tag, compact } } = await this.parse(SessionEventsCommand);
 
     const sessionIds = [sessionId, ...(argv as string[])];
     const { Session } = this.Fullstory;
@@ -97,7 +97,7 @@ For more information, see https://developer.fullstory.com/server/sessions/get-se
 
       for (const [id, events] of eventsBySession) {
         const filename = id.replaceAll(':', '-') + '.json';
-        writeJsonSync(join(dir, filename), events, { spaces });
+        writeJsonSync(join(dir, filename), events, { spaces: compact ? 0 : 2 });
       }
 
       this.print(`Session events saved to ${Fmt.constant(dir)}`);
