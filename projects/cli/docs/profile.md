@@ -174,18 +174,20 @@ Format a multi-line prompt into a single-line JSON string value.
 
 ```
 USAGE
-  $ fs profile:format [-f <value>]
+  $ fs profile:format [--dir <value>] [--delim <value>] [-f <value>]
 
 FLAGS
-  -f, --file=<value>  Path to a text file containing the prompt.
+  -f, --file=<value>   Path to a text file containing the prompt.
+      --delim=<value>  [default: DATA] Delimiter label used to wrap each file's contents. Used with --dir.
+      --dir=<value>    Path to a directory. All files in the directory will be read, delimited, and formatted.
 
 DESCRIPTION
   Format a multi-line prompt into a single-line JSON string value.
 
   Format multi-line prompt text into a single-line JSON string value for use with pre_prompt and post_prompt properties.
 
-  Reads text from a file (--file) or stdin. Outputs a JSON-encoded single-line string that can be pasted directly as a
-  JSON string value.
+  Reads text from a directory (--dir), a file (--file), or stdin. Outputs a JSON-encoded single-line string that can be
+  pasted directly as a JSON string value.
 
 EXAMPLES
   Format text from the clipboard (macOS).
@@ -199,6 +201,14 @@ EXAMPLES
   Format text from a file path.
 
     $ fs profile:format --file prompt.txt
+
+  Format all files in a directory with default --- DATA --- delimiters.
+
+    $ fs profile:format --dir ./sessions
+
+  Format all files in a directory with custom --- MYVALUE --- delimiters.
+
+    $ fs profile:format --dir ./sessions --delim MYVALUE
 ```
 
 ## `fs profile:update ID`

@@ -3,10 +3,81 @@
 
 Run event --help to list topics.
 
+* [`fs event SESSIONID`](#fs-event-sessionid)
 * [`fs event:create [SESSIONID] [NAME]`](#fs-eventcreate-sessionid-name)
 * [`fs event:errors JOBID`](#fs-eventerrors-jobid)
 * [`fs event:import`](#fs-eventimport)
 * [`fs event:job JOBID`](#fs-eventjob-jobid)
+
+## `fs event SESSIONID`
+
+List all captured events for a session.
+
+```
+USAGE
+  $ fs event SESSIONID... [--json] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv |
+    --no-truncate]] [--output csv|json|yaml |  | ] [--sort <value>] [--type <value>] [--query <value>] [-d] [--tag
+    <value>] [--compact]
+
+ARGUMENTS
+  SESSIONID...  The session ID or a Fullstory session URL.
+
+FLAGS
+  -d, --download       Download session events as JSON files to the local data directory.
+      --compact        Write compact JSON with no indentation. Used with --download.
+      --query=<value>  JSONata expression to transform or extract data from the events (outputs JSON).
+      --tag=<value>    Folder name for storing downloaded events. Used with --download.
+      --type=<value>   Filter events by event_type (e.g. navigate, click, change, custom).
+
+TABLE FLAGS
+  -x, --extended         show extra columns
+      --columns=<value>  only show provided columns (comma-separated)
+      --csv              output is csv format [alias: --output=csv]
+      --filter=<value>   filter property by partial string matching, ex: name=foo
+      --no-header        hide table header from output
+      --no-truncate      do not truncate output to fit screen
+      --output=<option>  output in a more machine friendly format
+                         <options: csv|json|yaml>
+      --sort=<value>     property to sort by (prepend '-' for descending)
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  List all captured events for a session.
+
+  List all captured events for one or more sessions.
+  Optionally filter by event type and/or transform the output with a JSONata expression.
+  Multiple session IDs can be provided as space-separated arguments.
+
+  For more information, see https://developer.fullstory.com/server/sessions/get-session-events/
+
+EXAMPLES
+  List all events for a session.
+
+    $ fs event 1841382665432129521:4929353557192241189
+
+  List only "change" events.
+
+    $ fs event 1841382665432129521:4929353557192241189 --type change
+
+  Extract text values from "change" events using JSONata (outputs JSON).
+
+    $ fs event 1841382665432129521:4929353557192241189 --type change --query $.event_properties.target.text
+
+  Output all events as JSON.
+
+    $ fs event 1841382665432129521:4929353557192241189 --json
+
+  List events for multiple sessions.
+
+    $ fs event 1841382665432129521:4929353557192241189 1841382665432129521:5039353557192241190
+
+  Download events for multiple sessions into a named subfolder.
+
+    $ fs event 1841382665432129521:4929353557192241189 1841382665432129521:5039353557192241190 --download --tag \
+      experiment-1
+```
 
 ## `fs event:create [SESSIONID] [NAME]`
 
@@ -22,7 +93,7 @@ ARGUMENTS
 
 FLAGS
   -f, --file=<value>        Path to a JSON file containing event data (CreateEvent schema). Uses batch import endpoint.
-      --properties=<value>  JSON string of custom event properties.
+      --properties=<value>  JSON string or path to a JSON file of custom event properties.
       --timestamp=<value>   Event timestamp in ISO 8601 format. Defaults to current server time.
 
 GLOBAL FLAGS
@@ -40,19 +111,24 @@ DESCRIPTION
 EXAMPLES
   Create an event on a session.
 
-    $ fs event "1234:5678" "Order Completed"
+    $ fs event:create 1841382665432129521:4929353557192241189 "Order Completed"
 
-  Create an event with custom properties.
+  Create an event with custom properties in a file.
 
-    $ fs event "1234:5678" "Order Completed" --properties '{"item":"shirt","total":12.99}'
+    $ fs event:create 1841382665432129521:4929353557192241189 "Order Completed" --properties ./event-props.json
+
+  Create an event with custom properties from the terminal.
+
+    $ fs event:create 1841382665432129521:4929353557192241189 "Order Completed" --properties \
+      '{"item":"shirt","total":12.99}'
 
   Create an event with a specific timestamp.
 
-    $ fs event "1234:5678" "Order Completed" --timestamp 2024-08-01T00:00:00Z
+    $ fs event:create 1841382665432129521:4929353557192241189 "Order Completed" --timestamp 2024-08-01T00:00:00Z
 
   Create an event from a JSON file (calls batch import with a single event).
 
-    $ fs event --file event.json
+    $ fs event:create --file event.json
 ```
 
 ## `fs event:errors JOBID`
