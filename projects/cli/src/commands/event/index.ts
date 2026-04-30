@@ -62,9 +62,9 @@ For more information, see https://developer.fullstory.com/server/sessions/get-se
   static summary = 'List all captured events for a session.';
 
   async run() {
-    const { args: { sessionId }, argv, flags: { query, type, download, tag, compact } } = await this.parse(SessionEventsCommand);
+    const { argv, flags: { query, type, download, tag, compact } } = await this.parse(SessionEventsCommand);
 
-    const sessionIds = [sessionId, ...(argv as string[])];
+    const sessionIds = argv as string[];
     const { Session } = this.Fullstory;
 
     // if multiple session IDs are provided, events from multiple sessions are aggregated

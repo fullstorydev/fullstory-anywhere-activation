@@ -58,10 +58,10 @@ For more information, see https://developer.fullstory.com/server/sessions/genera
   }
 
   async run(): Promise<unknown> {
-    const { args: { sessionId }, argv, flags: { json, download, tag, compact } } = await this.parse(SessionContextCommand);
+    const { argv, flags: { json, download, tag, compact } } = await this.parse(SessionContextCommand);
     const configuration = await this.parseConfiguration();
 
-    const sessionIds = [sessionId, ...(argv as string[])];
+    const sessionIds = argv as string[];
     const { Session } = this.Fullstory;
 
     const allResponses: Context[] = [];
