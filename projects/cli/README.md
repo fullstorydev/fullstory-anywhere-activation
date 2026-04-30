@@ -29,14 +29,16 @@ Your API key is stored locally and will be used by subsequent commands.
 
 Many CLI commands use the format `fs <command>` (e.g. `fs segment`) to list or retrieve Fullstory objects. Commands with extensive behavior have the format `fs <command>:<topic>` (e.g. `fs session:summary`). To explore commands and topics available, refer to documentation:
 
-- [`fs annotation`](docs/annotation.md) provides a way to create and apply annotations to Fullstory metrics using the [Annotation API](https://developer.fullstory.com/server/annotations/introduction/).
-- [`fs event`](docs/event.md) provides access to create custom events using the [Events API](https://developer.fullstory.com/server/events/introduction/).
+- [`fs annotation`](docs/annotation.md) create and apply annotations to Fullstory metrics using the [Annotation API](https://developer.fullstory.com/server/annotations/introduction/).
+- [`fs context`](docs/context.md) [generate context](https://developer.fullstory.com/server/sessions/generate-context/) that is more succinct for use with LLMs.
+- [`fs event`](docs/event.md) [get session events](https://developer.fullstory.com/server/sessions/get-session-events/) and creates custom events using the [Events API](https://developer.fullstory.com/server/events/introduction/).
 - [`fs export`](docs/export.md) schedules data exports based on Fullstory segments using the [Segment API](https://developer.fullstory.com/server/v1/segments/create-segment-export/).
 - [`fs help`](docs/help.md) displays help documentation for the Activation CLI.
 - [`fs key`](docs/key.md) manages [authentication](https://developer.fullstory.com/server/authentication/) and local management of Fullstory API keys.
 - [`fs profile`](docs/profile.md) manages prompting instructions and session context configuration using the [Summary Profile API](https://developer.fullstory.com/server/sessions/create-profile/).
-- [`fs segment`](docs/segment.md) lists segments from Fullstory using the [Segments API](https://developer.fullstory.com/server/v1/segments/list-segments/).
-- [`fs session`](docs/session.md) provides access to session event data and context for real-time access and AI using the [Sessions API](https://developer.fullstory.com/server/sessions/introduction/).
+- [`fs segment`](docs/segment.md) [lists segments](https://developer.fullstory.com/server/v1/segments/list-segments/) from Fullstory.
+- [`fs session`](docs/session.md) [list sessions](https://developer.fullstory.com/server/v1/sessions/list-sessions/) for a specific user.
+- [`fs summary`](docs/summary.md) [generate summary](https://developer.fullstory.com/server/sessions/generate-summary/) of a specific session.
 - [`fs user`](docs/user.md) manages user objects using the [Users API](https://developer.fullstory.com/server/users/introduction/).
 
 For any command and topic, use the `--help` flag to print the same documentation in the terminal.
